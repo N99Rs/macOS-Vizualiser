@@ -1,855 +1,2196 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>macOS Desktop</title>
-<style>
-  :root{ --menubar-h: 26px; --dock-size: 54px; }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  html,body{
-    width:100%;height:100%;
-    font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    overflow:hidden;
-    user-select:none;
-    -webkit-user-select:none;
-    cursor:default;
-  }
-  body{ position:relative; height:100vh; width:100vw; background:#1a1a2e; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>macOS Desktop</title>
+  <style>
+    :root {
+      --menubar-h: 26px;
+      --dock-size: 54px;
+    }
 
-  /* ============ WALLPAPER ============ */
-  .wallpaper{ position:fixed; inset:0; width:100%; height:100%; z-index:0; transition:filter .4s ease; }
-  .wallpaper svg{ width:100%; height:100%; display:block; }
-  body.blurred .wallpaper{ filter:blur(18px) brightness(0.7); }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-  /* ============ MENU BAR ============ */
-  .menubar{
-    position:fixed; top:0; left:0; right:0; height:var(--menubar-h);
-    background:rgba(255,255,255,0.35); backdrop-filter:blur(20px) saturate(180%); -webkit-backdrop-filter:blur(20px) saturate(180%);
-    display:flex; align-items:center; justify-content:space-between; padding:0 14px;
-    font-size:13px; font-weight:500; color:#1c1c1e; z-index:2000; box-shadow:0 1px 0 rgba(0,0,0,0.06);
-  }
-  .menubar-left, .menubar-right{ display:flex; align-items:center; height:100%; }
-  .menubar-left > .menu-entry{ padding:0 8px; height:100%; display:flex; align-items:center; border-radius:4px; position:relative; }
-  .menubar-left > .menu-entry:hover, .menubar-left > .menu-entry.open{ background:rgba(0,0,0,0.08); }
-  .apple-logo{ font-size:15px; font-weight:600; padding-top:1px; }
-  .menubar-left .app-name{ font-weight:700; }
-  .menubar-right{ gap:2px; }
-  .menubar-right .icon{ width:26px; height:100%; display:flex; align-items:center; justify-content:center; border-radius:4px; font-size:14px; }
-  .menubar-right .icon:hover, .menubar-right .icon.open{ background:rgba(0,0,0,0.08); }
-  .menubar-right .clock{ padding:0 8px 0 4px; font-variant-numeric:tabular-nums; border-radius:4px; height:100%; display:flex; align-items:center; }
-  .menubar-right .clock:hover{ background:rgba(0,0,0,0.08); }
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: default;
+    }
 
-  .dropdown{
-    position:fixed; top:var(--menubar-h); min-width:220px;
-    background:rgba(250,250,250,0.75); backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%);
-    border-radius:0 0 8px 8px; box-shadow:0 12px 30px rgba(0,0,0,0.3); padding:6px 0; z-index:2001;
-    display:none; font-size:13px; color:#1c1c1e; border:1px solid rgba(0,0,0,0.08); border-top:none;
-  }
-  .dropdown.show{ display:block; animation:dropIn .12s ease; }
-  @keyframes dropIn{ from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:translateY(0);} }
-  .dropdown .item{ padding:5px 16px; display:flex; justify-content:space-between; }
-  .dropdown .item:hover{ background:#0a6cff; color:#fff; }
-  .dropdown .sep{ height:1px; background:rgba(0,0,0,0.12); margin:5px 0; }
-  .dropdown .shortcut{ opacity:0.6; font-size:12px; }
+    body {
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      background: #1a1a2e;
+    }
 
-  .panel{
-    position:fixed; top:32px; right:10px; width:280px;
-    background:rgba(250,250,250,0.7); backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%);
-    border-radius:14px; box-shadow:0 15px 40px rgba(0,0,0,0.35); padding:12px; z-index:2001; display:none; color:#1c1c1e;
-  }
-  .panel.show{ display:block; animation:dropIn .15s ease; }
-  .cc-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .cc-card{ background:rgba(255,255,255,0.55); border-radius:12px; padding:10px; font-size:12px; }
-  .cc-card b{ display:block; font-size:13px; margin-bottom:6px; }
-  .cc-row{ display:flex; align-items:center; gap:8px; margin-bottom:4px; }
-  .cc-row .dot{ width:26px;height:26px;border-radius:50%;background:#0a6cff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px; }
-  .cc-slider{ height:6px; background:rgba(0,0,0,0.15); border-radius:3px; margin-top:6px; position:relative; }
-  .cc-slider .fill{ position:absolute;left:0;top:0;bottom:0;width:70%;background:#0a6cff;border-radius:3px; }
+    /* ============ WALLPAPER ============ */
+    .wallpaper {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      transition: filter .4s ease;
+    }
 
-  .spotlight-panel{
-    position:fixed; top:70px; left:50%; transform:translateX(-50%); width:560px; max-width:90vw;
-    background:rgba(245,245,245,0.9); backdrop-filter:blur(30px) saturate(180%); -webkit-backdrop-filter:blur(30px) saturate(180%);
-    border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,0.45); padding:14px 16px; z-index:2002; display:none;
-  }
-  .spotlight-panel.show{ display:block; animation:dropIn .15s ease; }
-  .spotlight-panel input{ width:100%; border:none; outline:none; background:transparent; font-size:22px; color:#1c1c1e; }
-  .spotlight-results{ margin-top:10px; border-top:1px solid rgba(0,0,0,0.1); padding-top:6px; max-height:260px; overflow-y:auto; }
-  .spotlight-results .res{ display:flex; align-items:center; gap:10px; padding:7px 8px; border-radius:6px; font-size:14px; color:#1c1c1e; }
-  .spotlight-results .res:hover, .spotlight-results .res.active{ background:#0a6cff; color:#fff; }
-  .spotlight-results .res .r-ic{ font-size:20px; width:26px; text-align:center; }
-  .spotlight-results .empty{ padding:10px 8px; color:#8a8a8e; font-size:13px; }
+    .wallpaper svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-  /* ============ DESKTOP ICONS ============ */
-  .desktop-icons{ position:fixed; top:40px; right:24px; display:flex; flex-direction:column; gap:34px; align-items:center; z-index:10; }
-  .desk-icon{ display:flex; flex-direction:column; align-items:center; width:90px; padding:6px 4px; border-radius:8px; }
-  .desk-icon:hover{ background:rgba(255,255,255,0.12); }
-  .desk-icon.selected{ background:rgba(60,140,255,0.35); }
-  .desk-icon .glyph{ width:58px; height:58px; display:flex; align-items:center; justify-content:center; margin-bottom:4px; filter:drop-shadow(0 3px 4px rgba(0,0,0,0.35)); pointer-events:none; }
-  .desk-icon .label{ color:#fff; font-size:12px; text-shadow:0 1px 2px rgba(0,0,0,0.6); text-align:center; pointer-events:none; }
-  .icon-timemachine{ width:52px;height:52px;border-radius:50%; background:linear-gradient(180deg,#4bd0a0,#2e9e78); display:flex;align-items:center;justify-content:center; position:relative; box-shadow:inset 0 2px 3px rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.25); }
-  .icon-timemachine::before{ content:"↻"; color:#fff; font-size:26px; font-weight:700; }
-  .icon-drive{ width:44px;height:56px; border-radius:5px; background:linear-gradient(160deg,#f6c453,#e0932a 55%,#c97a1e); box-shadow:inset 0 2px 2px rgba(255,255,255,0.5), 0 2px 3px rgba(0,0,0,0.3); position:relative; }
-  .icon-drive::after{ content:""; position:absolute; left:6px;right:6px;top:8px; height:3px; background:rgba(255,255,255,0.55); border-radius:2px; box-shadow:0 8px 0 rgba(255,255,255,0.35), 0 16px 0 rgba(255,255,255,0.25); }
-  .icon-drive.movies{ background:linear-gradient(160deg,#8fb8f6,#4f7fd6 55%,#3a63b0); }
+    body.blurred .wallpaper {
+      filter: blur(18px) brightness(0.7);
+    }
 
-  /* ============ CONTEXT MENU ============ */
-  .context-menu{
-    position:fixed; min-width:210px;
-    background:rgba(250,250,250,0.8); backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%);
-    border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,0.35); padding:6px 0; z-index:3000; display:none;
-    font-size:13px; color:#1c1c1e; border:1px solid rgba(0,0,0,0.1);
-  }
-  .context-menu.show{ display:block; animation:dropIn .1s ease; }
-  .context-menu .item{ padding:5px 16px; }
-  .context-menu .item:hover{ background:#0a6cff; color:#fff; }
-  .context-menu .sep{ height:1px; background:rgba(0,0,0,0.12); margin:5px 0; }
+    /* ============ MENU BAR ============ */
+    .menubar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--menubar-h);
+      background: rgba(255, 255, 255, 0.35);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1c1c1e;
+      z-index: 2000;
+      box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    }
 
-  /* ============ DOCK ============ */
-  .dock-wrap{ position:fixed; bottom:8px; left:50%; transform:translateX(-50%); z-index:900; }
-  .dock{
-    display:flex; align-items:flex-end; gap:8px; padding:6px 10px;
-    background:rgba(255,255,255,0.18); backdrop-filter:blur(24px) saturate(180%); -webkit-backdrop-filter:blur(24px) saturate(180%);
-    border-radius:18px; border:1px solid rgba(255,255,255,0.25); box-shadow:0 8px 24px rgba(0,0,0,0.35); height:64px;
-  }
-  .dock-item{
-    width:var(--dock-size); height:var(--dock-size); border-radius:12px; display:flex; align-items:center; justify-content:center;
-    position:relative; box-shadow:0 2px 4px rgba(0,0,0,0.25); will-change:transform; transform-origin:bottom center;
-  }
-  .dock-item .ic{ width:100%; height:100%; border-radius:12px; display:flex; align-items:center; justify-content:center; pointer-events:none; overflow:hidden; }
-  .dock-item .ic svg{ width:72%; height:72%; }
-  .dock-item::after{
-    content:attr(data-name); position:absolute; bottom:100%; left:50%; transform:translateX(-50%); margin-bottom:14px;
-    background:rgba(60,60,60,0.9); color:#fff; padding:3px 8px; border-radius:5px; font-size:12px; white-space:nowrap;
-    opacity:0; pointer-events:none; transition:opacity .15s ease;
-  }
-  .dock-item:hover::after{ opacity:1; }
-  .dock-item.bounce{ animation:bounce .5s ease; }
-  @keyframes bounce{
-    0%,100%{ transform:translateY(0) scale(var(--mag,1)); }
-    30%{ transform:translateY(-22px) scale(var(--mag,1)); }
-    50%{ transform:translateY(0) scale(var(--mag,1)); }
-    65%{ transform:translateY(-10px) scale(var(--mag,1)); }
-  }
-  .dock-divider{ width:1px; height:44px; background:rgba(255,255,255,0.4); margin:0 2px; align-self:center; }
-  .running-dot{ position:absolute; bottom:-9px; left:50%; transform:translateX(-50%); width:4px;height:4px; border-radius:50%; background:#fff; box-shadow:0 0 2px rgba(0,0,0,0.5); }
+    .menubar-left,
+    .menubar-right {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
 
-  .finder-bg{background:linear-gradient(#5fc9f3,#1a8fd1);}
-  .launchpad-bg{background:#2b2b30; padding:8px;}
-  .launchpad-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;width:100%;height:100%;padding:9px;pointer-events:none;}
-  .launchpad-grid div{border-radius:3px;}
-  .mission-bg{background:#3a3a3c;}
-  .reminders-bg{background:linear-gradient(#fff,#e5e5e5);}
-  .safari-bg{background:radial-gradient(circle at 50% 40%, #5cd0ff, #1c7fd6);}
-  .mail-bg{background:linear-gradient(#63b8ff,#1f7fe0);}
-  .calendar-bg{background:#fff;}
-  .messages-bg{background:linear-gradient(#39e769,#25c95a);}
-  .maps-bg{background:linear-gradient(#fdfdfd,#eaeaea);}
-  .photos-bg{background:conic-gradient(#ff5f57,#ffbd2e,#28c940,#5cd0ff,#a06cf5,#ff5f57);}
-  .facetime-bg{background:linear-gradient(#3ee06b,#20b652);}
-  .contacts-bg{background:linear-gradient(#c68a4e,#a8703a);}
-  .wallet-bg{background:linear-gradient(#d98a3d,#b5691f);}
-  .lists-bg{background:#fff;}
-  .stickies-bg{background:linear-gradient(#fdf6cf,#f7ecab);}
-  .findmy-bg{background:linear-gradient(#3a3a3c,#000);}
-  .appletv-bg{background:#000;}
-  .music-bg{background:radial-gradient(circle at 35% 30%,#ff7eb0,#fc3c6e 60%,#e0175a);}
-  .podcasts-bg{background:radial-gradient(circle at 50% 40%,#b45cff,#7d1fd6);}
-  .appstore-bg{background:linear-gradient(#4fa8ff,#1c6fe0);}
-  .settings-bg{background:linear-gradient(#d7d7dc,#9a9aa0);}
-  .downloads-bg{background:linear-gradient(#7fd0ff,#3aa0e8);}
-  .trash-bg{background:linear-gradient(#e7e7e7,#c9c9c9);}
+    .menubar-left>.menu-entry {
+      padding: 0 8px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+      position: relative;
+    }
 
-  /* ============ WINDOWS (generic) ============ */
-  .window{
-    position:fixed; top:80px; left:calc(50% - 380px); width:760px; height:460px;
-    background:rgba(246,246,246,0.92); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-    border-radius:10px; box-shadow:0 30px 70px rgba(0,0,0,0.5); display:none; flex-direction:column;
-    overflow:hidden; z-index:500; border:1px solid rgba(0,0,0,0.15); min-width:360px; min-height:220px;
-  }
-  .window.show{ display:flex; animation:winOpen .2s cubic-bezier(.2,.9,.3,1.2); }
-  @keyframes winOpen{ from{opacity:0; transform:scale(.9);} to{opacity:1; transform:scale(1);} }
-  .window.closing{ animation:winClose .15s ease forwards; }
-  @keyframes winClose{ to{opacity:0; transform:scale(.85);} }
-  .window.minimized{ display:none; }
-  .titlebar{
-    height:38px; background:linear-gradient(#e8e8e8,#d9d9d9); display:flex; align-items:center; padding:0 12px; gap:8px;
-    cursor:grab; border-bottom:1px solid rgba(0,0,0,0.1); flex-shrink:0;
-  }
-  .titlebar:active{ cursor:grabbing; }
-  .traffic{ width:12px;height:12px;border-radius:50%; position:relative; }
-  .traffic.close{ background:#ff5f57; }
-  .traffic.min{ background:#ffbd2e; }
-  .traffic.zoom{ background:#28c940; }
-  .traffic::after{ content:""; position:absolute; inset:0; border-radius:50%; box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1); }
-  .traffic-group{ display:flex; gap:8px; }
-  .traffic-group .traffic span{ display:none; font-size:9px; color:#5a1c1c; }
-  .traffic-group:hover .traffic span{ display:flex; align-items:center; justify-content:center; width:100%;height:100%; }
-  .win-title{ flex:1; text-align:center; font-size:13px; font-weight:600; color:#3a3a3c; margin-right:60px; }
-  .win-body{ flex:1; display:flex; overflow:hidden; }
-  .win-sidebar{ width:190px; background:rgba(237,237,239,0.7); border-right:1px solid rgba(0,0,0,0.08); padding:12px 8px; font-size:13px; overflow-y:auto; flex-shrink:0; }
-  .win-sidebar .section-title{ font-size:11px; color:#8a8a8e; font-weight:600; margin:10px 6px 4px; }
-  .win-sidebar .side-item{ display:flex; align-items:center; gap:8px; padding:5px 6px; border-radius:6px; color:#2c2c2e; }
-  .win-sidebar .side-item:hover{ background:rgba(0,0,0,0.06); }
-  .win-sidebar .side-item.active{ background:#0a6cff; color:#fff; }
-  .win-main{ flex:1; padding:16px 20px; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:18px; align-content:start; }
-  .win-file{ display:flex; flex-direction:column; align-items:center; text-align:center; font-size:12px; color:#1c1c1e; padding:8px 4px; border-radius:8px; }
-  .win-file:hover{ background:rgba(10,108,255,0.12); }
-  .win-file .fic{ width:48px;height:48px; margin-bottom:6px; border-radius:6px; background:linear-gradient(160deg,#7fb8f6,#4f7fd6); display:flex;align-items:center;justify-content:center; color:#fff;font-size:22px; }
-  .win-toolbar{ height:36px; background:rgba(246,246,246,0.8); border-bottom:1px solid rgba(0,0,0,0.08); display:flex; align-items:center; padding:0 12px; gap:10px; font-size:16px; color:#5a5a5e; flex-shrink:0; }
-  .win-toolbar .search-box{ margin-left:auto; background:rgba(0,0,0,0.06); border-radius:6px; padding:3px 10px; font-size:12px; color:#8a8a8e; width:140px; }
-  .win-plain-body{ flex:1; padding:20px; overflow-y:auto; font-size:14px; color:#2c2c2e; line-height:1.6; }
+    .menubar-left>.menu-entry:hover,
+    .menubar-left>.menu-entry.open {
+      background: rgba(0, 0, 0, 0.08);
+    }
 
-  /* resize handles all sides */
-  .rz{ position:absolute; z-index:5; }
-  .rz-e{ right:0; top:8px; bottom:8px; width:6px; cursor:ew-resize; }
-  .rz-w{ left:0; top:8px; bottom:8px; width:6px; cursor:ew-resize; }
-  .rz-s{ bottom:0; left:8px; right:8px; height:6px; cursor:ns-resize; }
-  .rz-n{ top:0; left:8px; right:8px; height:6px; cursor:ns-resize; }
-  .rz-se{ right:0; bottom:0; width:14px; height:14px; cursor:nwse-resize; }
-  .rz-sw{ left:0; bottom:0; width:14px; height:14px; cursor:nesw-resize; }
-  .rz-ne{ right:0; top:0; width:14px; height:14px; cursor:nesw-resize; }
-  .rz-nw{ left:0; top:0; width:14px; height:14px; cursor:nwse-resize; }
+    .apple-logo {
+      font-size: 15px;
+      font-weight: 600;
+      padding-top: 1px;
+    }
 
-  /* ============ LAUNCHPAD ============ */
-  .launchpad-overlay{
-    position:fixed; inset:0; z-index:2500; display:none; align-items:flex-start; justify-content:center;
-    padding-top:70px; background:rgba(0,0,0,0.2); backdrop-filter:blur(6px);
-  }
-  .launchpad-overlay.show{ display:flex; animation:dropIn .2s ease; }
-  .lp-search{
-    position:absolute; top:20px; left:50%; transform:translateX(-50%);
-    background:rgba(255,255,255,0.25); border-radius:8px; padding:6px 14px; color:#fff; font-size:14px; width:220px; text-align:center;
-  }
-  .lp-grid{ display:grid; grid-template-columns:repeat(7,100px); gap:28px 10px; max-width:900px; }
-  .lp-app{ display:flex; flex-direction:column; align-items:center; gap:6px; cursor:default; }
-  .lp-app .lp-ic{ width:72px;height:72px;border-radius:16px; box-shadow:0 6px 14px rgba(0,0,0,0.35); display:flex;align-items:center;justify-content:center; transition:transform .12s ease; }
-  .lp-app:hover .lp-ic{ transform:scale(1.08); }
-  .lp-app .lp-ic svg{ width:60%; height:60%; }
-  .lp-app .lp-label{ color:#fff; font-size:12px; text-shadow:0 1px 2px rgba(0,0,0,0.6); text-align:center; }
+    .menubar-left .app-name {
+      font-weight: 700;
+    }
 
-  /* ============ MISSION CONTROL ============ */
-  .mission-overlay{
-    position:fixed; inset:0; z-index:2400; display:none; align-items:center; justify-content:center; gap:30px;
-    background:rgba(20,20,30,0.55); backdrop-filter:blur(20px); flex-wrap:wrap; padding:60px;
-  }
-  .mission-overlay.show{ display:flex; animation:dropIn .2s ease; }
-  .mission-thumb{
-    width:280px; height:180px; border-radius:10px; background:rgba(255,255,255,0.9); box-shadow:0 15px 40px rgba(0,0,0,0.5);
-    display:flex; flex-direction:column; overflow:hidden; cursor:default; transition:transform .15s ease; border:2px solid transparent;
-  }
-  .mission-thumb:hover{ transform:scale(1.05); border-color:#0a6cff; }
-  .mission-thumb .mt-bar{ height:18px; background:#e2e2e2; display:flex; align-items:center; gap:4px; padding:0 6px; flex-shrink:0; }
-  .mission-thumb .mt-bar span{ width:7px;height:7px;border-radius:50%; }
-  .mission-thumb .mt-body{ flex:1; display:flex; align-items:center; justify-content:center; font-size:13px; color:#555; }
-  .mission-empty{ color:#fff; font-size:16px; opacity:0.8; }
+    .menubar-right {
+      gap: 2px;
+    }
 
-  /* ============ SCREENSAVER ============ */
-  .screensaver{
-    position:fixed; inset:0; z-index:5000; background:#000; display:none; align-items:center; justify-content:center; flex-direction:column;
-    color:#fff; cursor:pointer;
-  }
-  .screensaver.show{ display:flex; }
-  .ss-clock{ font-size:110px; font-weight:200; letter-spacing:2px; animation:floatSS 12s ease-in-out infinite; }
-  .ss-date{ font-size:22px; font-weight:300; opacity:0.7; margin-top:6px; animation:floatSS 12s ease-in-out infinite; }
-  @keyframes floatSS{
-    0%{ transform:translate(0,0); } 25%{ transform:translate(40px,20px); } 50%{ transform:translate(0,40px); }
-    75%{ transform:translate(-40px,20px); } 100%{ transform:translate(0,0); }
-  }
-</style>
+    .menubar-right .icon {
+      width: 26px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .menubar-right .icon:hover,
+    .menubar-right .icon.open {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .menubar-right .clock {
+      padding: 0 8px 0 4px;
+      font-variant-numeric: tabular-nums;
+      border-radius: 4px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .menubar-right .clock:hover {
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .dropdown {
+      position: fixed;
+      top: var(--menubar-h);
+      min-width: 220px;
+      background: rgba(250, 250, 250, 0.75);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      padding: 6px 0;
+      z-index: 2001;
+      display: none;
+      font-size: 13px;
+      color: #1c1c1e;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-top: none;
+    }
+
+    .dropdown.show {
+      display: block;
+      animation: dropIn .12s ease;
+    }
+
+    @keyframes dropIn {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .dropdown .item {
+      padding: 5px 16px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .dropdown .item:hover {
+      background: #0a6cff;
+      color: #fff;
+    }
+
+    .dropdown .sep {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.12);
+      margin: 5px 0;
+    }
+
+    .dropdown .shortcut {
+      opacity: 0.6;
+      font-size: 12px;
+    }
+
+    .panel {
+      position: fixed;
+      top: 32px;
+      right: 10px;
+      width: 280px;
+      background: rgba(250, 250, 250, 0.7);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border-radius: 14px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+      padding: 12px;
+      z-index: 2001;
+      display: none;
+      color: #1c1c1e;
+    }
+
+    .panel.show {
+      display: block;
+      animation: dropIn .15s ease;
+    }
+
+    .cc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .cc-card {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    .cc-card b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .cc-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .cc-row .dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #0a6cff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 13px;
+    }
+
+    .cc-slider {
+      height: 6px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 3px;
+      margin-top: 6px;
+      position: relative;
+    }
+
+    .cc-slider .fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 70%;
+      background: #0a6cff;
+      border-radius: 3px;
+    }
+
+    .spotlight-panel {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 560px;
+      max-width: 90vw;
+      background: rgba(245, 245, 245, 0.9);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      padding: 14px 16px;
+      z-index: 2002;
+      display: none;
+    }
+
+    .spotlight-panel.show {
+      display: block;
+      animation: dropIn .15s ease;
+    }
+
+    .spotlight-panel input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 22px;
+      color: #1c1c1e;
+    }
+
+    .spotlight-results {
+      margin-top: 10px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      padding-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .spotlight-results .res {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      color: #1c1c1e;
+    }
+
+    .spotlight-results .res:hover,
+    .spotlight-results .res.active {
+      background: #0a6cff;
+      color: #fff;
+    }
+
+    .spotlight-results .res .r-ic {
+      font-size: 20px;
+      width: 26px;
+      text-align: center;
+    }
+
+    .spotlight-results .empty {
+      padding: 10px 8px;
+      color: #8a8a8e;
+      font-size: 13px;
+    }
+
+    /* ============ DESKTOP ICONS ============ */
+    .desktop-icons {
+      position: fixed;
+      top: 40px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .desk-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 90px;
+      padding: 6px 4px;
+      border-radius: 8px;
+    }
+
+    .desk-icon:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .desk-icon.selected {
+      background: rgba(60, 140, 255, 0.35);
+    }
+
+    .desk-icon .glyph {
+      width: 58px;
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+      pointer-events: none;
+    }
+
+    .desk-icon .label {
+      color: #fff;
+      font-size: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .icon-timemachine {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #4bd0a0, #2e9e78);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.4), inset 0 -2px 4px rgba(0, 0, 0, 0.25);
+    }
+
+    .icon-timemachine::before {
+      content: "↻";
+      color: #fff;
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .icon-drive {
+      width: 44px;
+      height: 56px;
+      border-radius: 5px;
+      background: linear-gradient(160deg, #f6c453, #e0932a 55%, #c97a1e);
+      box-shadow: inset 0 2px 2px rgba(255, 255, 255, 0.5), 0 2px 3px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .icon-drive::after {
+      content: "";
+      position: absolute;
+      left: 6px;
+      right: 6px;
+      top: 8px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 2px;
+      box-shadow: 0 8px 0 rgba(255, 255, 255, 0.35), 0 16px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .icon-drive.movies {
+      background: linear-gradient(160deg, #8fb8f6, #4f7fd6 55%, #3a63b0);
+    }
+
+    /* ============ CONTEXT MENU ============ */
+    .context-menu {
+      position: fixed;
+      min-width: 210px;
+      background: rgba(250, 250, 250, 0.8);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 8px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+      padding: 6px 0;
+      z-index: 3000;
+      display: none;
+      font-size: 13px;
+      color: #1c1c1e;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .context-menu.show {
+      display: block;
+      animation: dropIn .1s ease;
+    }
+
+    .context-menu .item {
+      padding: 5px 16px;
+    }
+
+    .context-menu .item:hover {
+      background: #0a6cff;
+      color: #fff;
+    }
+
+    .context-menu .sep {
+      height: 1px;
+      background: rgba(0, 0, 0, 0.12);
+      margin: 5px 0;
+    }
+
+    /* ============ DOCK ============ */
+    .dock-wrap {
+      position: fixed;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 900;
+    }
+
+    .dock {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      height: 64px;
+    }
+
+    .dock-item {
+      width: var(--dock-size);
+      height: var(--dock-size);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+      will-change: transform;
+      transform-origin: bottom center;
+    }
+
+    .dock-item .ic {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .dock-item .ic svg {
+      width: 72%;
+      height: 72%;
+    }
+
+    .dock-item::after {
+      content: attr(data-name);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-bottom: 14px;
+      background: rgba(60, 60, 60, 0.9);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s ease;
+    }
+
+    .dock-item:hover::after {
+      opacity: 1;
+    }
+
+    .dock-item.bounce {
+      animation: bounce .5s ease;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(var(--mag, 1));
+      }
+
+      30% {
+        transform: translateY(-22px) scale(var(--mag, 1));
+      }
+
+      50% {
+        transform: translateY(0) scale(var(--mag, 1));
+      }
+
+      65% {
+        transform: translateY(-10px) scale(var(--mag, 1));
+      }
+    }
+
+    .dock-divider {
+      width: 1px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.4);
+      margin: 0 2px;
+      align-self: center;
+    }
+
+    .running-dot {
+      position: absolute;
+      bottom: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+    }
+
+    .finder-bg {
+      background: linear-gradient(#5fc9f3, #1a8fd1);
+    }
+
+    .launchpad-bg {
+      background: #2b2b30;
+      padding: 8px;
+    }
+
+    .launchpad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+      width: 100%;
+      height: 100%;
+      padding: 9px;
+      pointer-events: none;
+    }
+
+    .launchpad-grid div {
+      border-radius: 3px;
+    }
+
+    .mission-bg {
+      background: #3a3a3c;
+    }
+
+    .reminders-bg {
+      background: linear-gradient(#fff, #e5e5e5);
+    }
+
+    .safari-bg {
+      background: radial-gradient(circle at 50% 40%, #5cd0ff, #1c7fd6);
+    }
+
+    .mail-bg {
+      background: linear-gradient(#63b8ff, #1f7fe0);
+    }
+
+    .calendar-bg {
+      background: #fff;
+    }
+
+    .messages-bg {
+      background: linear-gradient(#39e769, #25c95a);
+    }
+
+    .maps-bg {
+      background: linear-gradient(#fdfdfd, #eaeaea);
+    }
+
+    .photos-bg {
+      background: conic-gradient(#ff5f57, #ffbd2e, #28c940, #5cd0ff, #a06cf5, #ff5f57);
+    }
+
+    .facetime-bg {
+      background: linear-gradient(#3ee06b, #20b652);
+    }
+
+    .contacts-bg {
+      background: linear-gradient(#c68a4e, #a8703a);
+    }
+
+    .wallet-bg {
+      background: linear-gradient(#d98a3d, #b5691f);
+    }
+
+    .lists-bg {
+      background: #fff;
+    }
+
+    .stickies-bg {
+      background: linear-gradient(#fdf6cf, #f7ecab);
+    }
+
+    .findmy-bg {
+      background: linear-gradient(#3a3a3c, #000);
+    }
+
+    .appletv-bg {
+      background: #000;
+    }
+
+    .music-bg {
+      background: radial-gradient(circle at 35% 30%, #ff7eb0, #fc3c6e 60%, #e0175a);
+    }
+
+    .podcasts-bg {
+      background: radial-gradient(circle at 50% 40%, #b45cff, #7d1fd6);
+    }
+
+    .appstore-bg {
+      background: linear-gradient(#4fa8ff, #1c6fe0);
+    }
+
+    .settings-bg {
+      background: linear-gradient(#d7d7dc, #9a9aa0);
+    }
+
+    .downloads-bg {
+      background: linear-gradient(#7fd0ff, #3aa0e8);
+    }
+
+    .trash-bg {
+      background: linear-gradient(#e7e7e7, #c9c9c9);
+    }
+
+    /* ============ WINDOWS (generic) ============ */
+    .window {
+      position: fixed;
+      top: 80px;
+      left: calc(50% - 380px);
+      width: 760px;
+      height: 460px;
+      background: rgba(246, 246, 246, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 10px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 500;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      min-width: 360px;
+      min-height: 220px;
+    }
+
+    .window.show {
+      display: flex;
+      animation: winOpen .2s cubic-bezier(.2, .9, .3, 1.2);
+    }
+
+    @keyframes winOpen {
+      from {
+        opacity: 0;
+        transform: scale(.9);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .window.closing {
+      animation: winClose .15s ease forwards;
+    }
+
+    @keyframes winClose {
+      to {
+        opacity: 0;
+        transform: scale(.85);
+      }
+    }
+
+    .window.minimized {
+      display: none;
+    }
+
+    .titlebar {
+      height: 38px;
+      background: linear-gradient(#e8e8e8, #d9d9d9);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 8px;
+      cursor: grab;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      flex-shrink: 0;
+    }
+
+    .titlebar:active {
+      cursor: grabbing;
+    }
+
+    .window.inactive {
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
+    }
+
+    .window.inactive .titlebar {
+      background: linear-gradient(#efefef, #e6e6e6);
+    }
+
+    .window.inactive .win-title {
+      color: #a5a5a8;
+    }
+
+    .window.inactive .traffic {
+      filter: grayscale(0.6) opacity(0.6);
+    }
+
+    .window.snap-preview-left,
+    .window.snap-preview-right {
+      transition: left .15s ease, top .15s ease, width .15s ease, height .15s ease;
+    }
+
+    .snap-overlay {
+      position: fixed;
+      top: 26px;
+      bottom: 0;
+      width: 50%;
+      background: rgba(10, 108, 255, 0.25);
+      border: 2px solid rgba(10, 108, 255, 0.6);
+      z-index: 490;
+      display: none;
+      pointer-events: none;
+    }
+
+    .snap-overlay.left {
+      left: 0;
+    }
+
+    .snap-overlay.right {
+      right: 0;
+    }
+
+    .snap-overlay.show {
+      display: block;
+    }
+
+    .traffic {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .traffic.close {
+      background: #ff5f57;
+    }
+
+    .traffic.min {
+      background: #ffbd2e;
+    }
+
+    .traffic.zoom {
+      background: #28c940;
+    }
+
+    .traffic::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    }
+
+    .traffic-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .traffic-group .traffic span {
+      display: none;
+      font-size: 9px;
+      color: #5a1c1c;
+    }
+
+    .traffic-group:hover .traffic span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .win-title {
+      flex: 1;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #3a3a3c;
+      margin-right: 60px;
+    }
+
+    .win-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .win-sidebar {
+      width: 190px;
+      background: rgba(237, 237, 239, 0.7);
+      border-right: 1px solid rgba(0, 0, 0, 0.08);
+      padding: 12px 8px;
+      font-size: 13px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .win-sidebar .section-title {
+      font-size: 11px;
+      color: #8a8a8e;
+      font-weight: 600;
+      margin: 10px 6px 4px;
+    }
+
+    .win-sidebar .side-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 6px;
+      border-radius: 6px;
+      color: #2c2c2e;
+    }
+
+    .win-sidebar .side-item:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .win-sidebar .side-item.active {
+      background: #0a6cff;
+      color: #fff;
+    }
+
+    .win-main {
+      flex: 1;
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 18px;
+      align-content: start;
+    }
+
+    .win-file {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      font-size: 12px;
+      color: #1c1c1e;
+      padding: 8px 4px;
+      border-radius: 8px;
+    }
+
+    .win-file:hover {
+      background: rgba(10, 108, 255, 0.12);
+    }
+
+    .win-file .fic {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+      background: linear-gradient(160deg, #7fb8f6, #4f7fd6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 22px;
+    }
+
+    .win-toolbar {
+      height: 36px;
+      background: rgba(246, 246, 246, 0.8);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      font-size: 16px;
+      color: #5a5a5e;
+      flex-shrink: 0;
+    }
+
+    .win-toolbar .search-box {
+      margin-left: auto;
+      background: rgba(0, 0, 0, 0.06);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      color: #8a8a8e;
+      width: 140px;
+    }
+
+    .win-plain-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 14px;
+      color: #2c2c2e;
+      line-height: 1.6;
+    }
+
+    /* resize handles all sides */
+    .rz {
+      position: absolute;
+      z-index: 5;
+    }
+
+    .rz-e {
+      right: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 6px;
+      cursor: ew-resize;
+    }
+
+    .rz-w {
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 6px;
+      cursor: ew-resize;
+    }
+
+    .rz-s {
+      bottom: 0;
+      left: 8px;
+      right: 8px;
+      height: 6px;
+      cursor: ns-resize;
+    }
+
+    .rz-n {
+      top: 0;
+      left: 8px;
+      right: 8px;
+      height: 6px;
+      cursor: ns-resize;
+    }
+
+    .rz-se {
+      right: 0;
+      bottom: 0;
+      width: 14px;
+      height: 14px;
+      cursor: nwse-resize;
+    }
+
+    .rz-sw {
+      left: 0;
+      bottom: 0;
+      width: 14px;
+      height: 14px;
+      cursor: nesw-resize;
+    }
+
+    .rz-ne {
+      right: 0;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      cursor: nesw-resize;
+    }
+
+    .rz-nw {
+      left: 0;
+      top: 0;
+      width: 14px;
+      height: 14px;
+      cursor: nwse-resize;
+    }
+
+    /* ============ LAUNCHPAD ============ */
+    .launchpad-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2500;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 70px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(6px);
+    }
+
+    .launchpad-overlay.show {
+      display: flex;
+      animation: dropIn .2s ease;
+    }
+
+    .lp-search {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 8px;
+      padding: 6px 14px;
+      color: #fff;
+      font-size: 14px;
+      width: 220px;
+      text-align: center;
+    }
+
+    .lp-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 100px);
+      gap: 28px 10px;
+      max-width: 900px;
+    }
+
+    .lp-app {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: default;
+    }
+
+    .lp-app .lp-ic {
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .12s ease;
+    }
+
+    .lp-app:hover .lp-ic {
+      transform: scale(1.08);
+    }
+
+    .lp-app .lp-ic svg {
+      width: 60%;
+      height: 60%;
+    }
+
+    .lp-app .lp-label {
+      color: #fff;
+      font-size: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+      text-align: center;
+    }
+
+    /* ============ MISSION CONTROL ============ */
+    .mission-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2400;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      background: rgba(20, 20, 30, 0.55);
+      backdrop-filter: blur(20px);
+      flex-wrap: wrap;
+      padding: 60px;
+    }
+
+    .mission-overlay.show {
+      display: flex;
+      animation: dropIn .2s ease;
+    }
+
+    .mission-thumb {
+      width: 280px;
+      height: 180px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      cursor: default;
+      transition: transform .15s ease;
+      border: 2px solid transparent;
+    }
+
+    .mission-thumb:hover {
+      transform: scale(1.05);
+      border-color: #0a6cff;
+    }
+
+    .mission-thumb .mt-bar {
+      height: 18px;
+      background: #e2e2e2;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+
+    .mission-thumb .mt-bar span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    .mission-thumb .mt-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .mission-empty {
+      color: #fff;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    /* ============ SCREENSAVER ============ */
+    .screensaver {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      background: #000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .screensaver.show {
+      display: flex;
+    }
+
+    .ss-clock {
+      font-size: 110px;
+      font-weight: 200;
+      letter-spacing: 2px;
+      animation: floatSS 12s ease-in-out infinite;
+    }
+
+    .ss-date {
+      font-size: 22px;
+      font-weight: 300;
+      opacity: 0.7;
+      margin-top: 6px;
+      animation: floatSS 12s ease-in-out infinite;
+    }
+
+    @keyframes floatSS {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      25% {
+        transform: translate(40px, 20px);
+      }
+
+      50% {
+        transform: translate(0, 40px);
+      }
+
+      75% {
+        transform: translate(-40px, 20px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
+    /* ============ SHUTDOWN OVERLAY ============ */
+    .shutdown-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.4s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shutdown-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .shutdown-spinner {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.25);
+      border-top-color: #fff;
+      animation: spin 1s linear infinite;
+      opacity: 0;
+    }
+
+    .shutdown-overlay.spin .shutdown-spinner {
+      opacity: 1;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ============ DESKTOP WIDGETS ============ */
+    .widgets-col {
+      position: fixed;
+      top: 40px;
+      left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 10;
+    }
+
+    .widget {
+      width: 170px;
+      border-radius: 18px;
+      padding: 14px 16px;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .widget-weather .w-loc {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    .widget-weather .w-temp {
+      font-size: 38px;
+      font-weight: 200;
+      margin: 2px 0;
+    }
+
+    .widget-weather .w-desc {
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    .widget-weather .w-icon {
+      font-size: 26px;
+      float: right;
+      margin-top: -40px;
+    }
+
+    .widget-calendar .wc-day {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.85;
+      text-transform: capitalize;
+    }
+
+    .widget-calendar .wc-date {
+      font-size: 40px;
+      font-weight: 200;
+      line-height: 1;
+      margin: 2px 0;
+    }
+
+    .widget-calendar .wc-month {
+      font-size: 12px;
+      opacity: 0.85;
+      text-transform: capitalize;
+    }
+
+    /* ============ NOTIFICATION CENTER ============ */
+    .notif-edge {
+      position: fixed;
+      top: 26px;
+      right: 0;
+      width: 10px;
+      bottom: 0;
+      z-index: 1500;
+    }
+
+    .notif-center {
+      position: fixed;
+      top: 26px;
+      right: -340px;
+      bottom: 0;
+      width: 320px;
+      padding: 14px;
+      background: rgba(235, 235, 238, 0.55);
+      backdrop-filter: blur(30px) saturate(180%);
+      -webkit-backdrop-filter: blur(30px) saturate(180%);
+      z-index: 2600;
+      transition: right .25s ease;
+      overflow-y: auto;
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .notif-center.show {
+      right: 0;
+    }
+
+    .notif-card {
+      background: rgba(255, 255, 255, 0.75);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .notif-card .n-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #3a3a3c;
+      margin-bottom: 4px;
+    }
+
+    .notif-card .n-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .notif-card .n-time {
+      margin-left: auto;
+      font-weight: 400;
+      color: #8a8a8e;
+    }
+
+    .notif-card .n-body {
+      font-size: 13px;
+      color: #1c1c1e;
+    }
+
+    .notif-widgets-title {
+      color: #5a5a5e;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 6px 0 10px;
+    }
+  </style>
 </head>
+
 <body id="body">
 
-<!-- SVG wallpaper -->
-<div class="wallpaper">
-<svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="60%">
-      <stop offset="0%" stop-color="#1c5fae"/>
-      <stop offset="22%" stop-color="#3f8fce"/>
-      <stop offset="40%" stop-color="#8db9dd"/>
-      <stop offset="55%" stop-color="#dce6e8"/>
-      <stop offset="68%" stop-color="#f3e9d8"/>
-      <stop offset="82%" stop-color="#ffbf7a"/>
-      <stop offset="100%" stop-color="#ff9c4d"/>
-    </linearGradient>
-    <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="40%">
-      <stop offset="0%" stop-color="#ff2f6d"/>
-      <stop offset="30%" stop-color="#ff4f4f"/>
-      <stop offset="55%" stop-color="#ff7a3d"/>
-      <stop offset="80%" stop-color="#ffb14d"/>
-      <stop offset="100%" stop-color="#ffd97a"/>
-    </linearGradient>
-    <linearGradient id="waveGrad2" x1="0%" y1="20%" x2="90%" y2="100%">
-      <stop offset="0%" stop-color="#8e1fb0"/>
-      <stop offset="25%" stop-color="#c21f8f"/>
-      <stop offset="50%" stop-color="#ff2f6d"/>
-      <stop offset="75%" stop-color="#ff5a3d"/>
-      <stop offset="100%" stop-color="#ff8a3d"/>
-    </linearGradient>
-    <linearGradient id="waveGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#4a1279"/>
-      <stop offset="30%" stop-color="#7a1a9a"/>
-      <stop offset="60%" stop-color="#b8206e"/>
-      <stop offset="100%" stop-color="#ff3d5a"/>
-    </linearGradient>
-  </defs>
-  <rect x="0" y="0" width="1600" height="1000" fill="url(#skyGrad)"/>
-  <path d="M0,180 C250,80 480,260 750,190 C1000,120 1250,260 1600,150 L1600,0 L0,0 Z" fill="#ffffff" opacity="0.10"/>
-  <path d="M0,420 C300,300 550,520 850,430 C1100,360 1350,480 1600,400 L1600,1000 L0,1000 Z" fill="url(#waveGrad2)" opacity="0.95"/>
-  <path d="M0,560 C280,430 520,650 800,560 C1080,470 1320,640 1600,540 L1600,1000 L0,1000 Z" fill="url(#waveGrad1)" opacity="0.9"/>
-  <path d="M0,700 C260,600 520,780 820,700 C1100,630 1360,780 1600,700 L1600,1000 L0,1000 Z" fill="url(#waveGrad3)"/>
-  <path d="M0,830 C300,760 560,920 860,850 C1120,790 1380,900 1600,840 L1600,1000 L0,1000 Z" fill="#5a1470" opacity="0.55"/>
-</svg>
-</div>
-
-<!-- Menu Bar -->
-<div class="menubar">
-  <div class="menubar-left">
-    <div class="menu-entry" id="menu-apple" data-menu="apple-menu"><span class="apple-logo"></span></div>
-    <div class="menu-entry app-name" id="menu-finder" data-menu="finder-menu">Finder</div>
-    <div class="menu-entry" id="menu-file" data-menu="file-menu">File</div>
-    <div class="menu-entry" id="menu-edit" data-menu="edit-menu">Edit</div>
-    <div class="menu-entry" id="menu-view" data-menu="view-menu">View</div>
-    <div class="menu-entry" id="menu-go" data-menu="go-menu">Go</div>
-    <div class="menu-entry" id="menu-window" data-menu="window-menu">Window</div>
-    <div class="menu-entry" id="menu-help" data-menu="help-menu">Help</div>
+  <!-- SVG wallpaper -->
+  <div class="wallpaper">
+    <svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="60%">
+          <stop offset="0%" stop-color="#1c5fae" />
+          <stop offset="22%" stop-color="#3f8fce" />
+          <stop offset="40%" stop-color="#8db9dd" />
+          <stop offset="55%" stop-color="#dce6e8" />
+          <stop offset="68%" stop-color="#f3e9d8" />
+          <stop offset="82%" stop-color="#ffbf7a" />
+          <stop offset="100%" stop-color="#ff9c4d" />
+        </linearGradient>
+        <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="40%">
+          <stop offset="0%" stop-color="#ff2f6d" />
+          <stop offset="30%" stop-color="#ff4f4f" />
+          <stop offset="55%" stop-color="#ff7a3d" />
+          <stop offset="80%" stop-color="#ffb14d" />
+          <stop offset="100%" stop-color="#ffd97a" />
+        </linearGradient>
+        <linearGradient id="waveGrad2" x1="0%" y1="20%" x2="90%" y2="100%">
+          <stop offset="0%" stop-color="#8e1fb0" />
+          <stop offset="25%" stop-color="#c21f8f" />
+          <stop offset="50%" stop-color="#ff2f6d" />
+          <stop offset="75%" stop-color="#ff5a3d" />
+          <stop offset="100%" stop-color="#ff8a3d" />
+        </linearGradient>
+        <linearGradient id="waveGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4a1279" />
+          <stop offset="30%" stop-color="#7a1a9a" />
+          <stop offset="60%" stop-color="#b8206e" />
+          <stop offset="100%" stop-color="#ff3d5a" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="1600" height="1000" fill="url(#skyGrad)" />
+      <path d="M0,180 C250,80 480,260 750,190 C1000,120 1250,260 1600,150 L1600,0 L0,0 Z" fill="#ffffff"
+        opacity="0.10" />
+      <path d="M0,420 C300,300 550,520 850,430 C1100,360 1350,480 1600,400 L1600,1000 L0,1000 Z" fill="url(#waveGrad2)"
+        opacity="0.95" />
+      <path d="M0,560 C280,430 520,650 800,560 C1080,470 1320,640 1600,540 L1600,1000 L0,1000 Z" fill="url(#waveGrad1)"
+        opacity="0.9" />
+      <path d="M0,700 C260,600 520,780 820,700 C1100,630 1360,780 1600,700 L1600,1000 L0,1000 Z"
+        fill="url(#waveGrad3)" />
+      <path d="M0,830 C300,760 560,920 860,850 C1120,790 1380,900 1600,840 L1600,1000 L0,1000 Z" fill="#5a1470"
+        opacity="0.55" />
+    </svg>
   </div>
-  <div class="menubar-right">
-    <div class="icon" title="Screen Mirroring">▤</div>
-    <div class="icon" title="Do Not Disturb">◐</div>
-    <div class="icon" title="Now Playing">❯</div>
-    <div class="icon" title="Keyboard">⌘</div>
-    <div class="icon" title="CPU">🖥</div>
-    <div class="icon" title="Battery">🔋</div>
-    <div class="icon" title="Wi-Fi">📶</div>
-    <div class="icon" id="btn-spotlight" title="Spotlight">🔍</div>
-    <div class="icon" id="btn-cc" title="Control Center">⚙</div>
-    <div class="icon" title="Siri">◕</div>
-    <div class="clock" id="clock">Tue 1 Dec 09:10</div>
+
+  <!-- Menu Bar -->
+  <div class="menubar">
+    <div class="menubar-left">
+      <div class="menu-entry" id="menu-apple" data-menu="apple-menu"><span class="apple-logo"></span></div>
+      <div class="menu-entry app-name" id="menu-finder" data-menu="finder-menu">Finder</div>
+      <div class="menu-entry" id="menu-file" data-menu="file-menu">File</div>
+      <div class="menu-entry" id="menu-edit" data-menu="edit-menu">Edit</div>
+      <div class="menu-entry" id="menu-view" data-menu="view-menu">View</div>
+      <div class="menu-entry" id="menu-go" data-menu="go-menu">Go</div>
+      <div class="menu-entry" id="menu-window" data-menu="window-menu">Window</div>
+      <div class="menu-entry" id="menu-help" data-menu="help-menu">Help</div>
+    </div>
+    <div class="menubar-right">
+      <div class="icon" title="Screen Mirroring">▤</div>
+      <div class="icon" title="Do Not Disturb">◐</div>
+      <div class="icon" title="Now Playing">❯</div>
+      <div class="icon" title="Keyboard">⌘</div>
+      <div class="icon" title="CPU">🖥</div>
+      <div class="icon" title="Battery">🔋</div>
+      <div class="icon" title="Wi-Fi">📶</div>
+      <div class="icon" id="btn-spotlight" title="Spotlight">🔍</div>
+      <div class="icon" id="btn-cc" title="Control Center">⚙</div>
+      <div class="icon" title="Siri">◕</div>
+      <div class="clock" id="clock">Tue 1 Dec 09:10</div>
+      <div class="icon" id="btn-notif" title="Centre de notifications">☰</div>
+    </div>
   </div>
-</div>
 
-<!-- Dropdown menus -->
-<div class="dropdown" id="apple-menu" style="left:6px;">
-  <div class="item">À propos de ce Mac</div>
-  <div class="sep"></div>
-  <div class="item">Préférences Système…</div>
-  <div class="item">App Store…</div>
-  <div class="sep"></div>
-  <div class="item">Se déconnecter… <span class="shortcut">⇧⌘Q</span></div>
-</div>
-<div class="dropdown" id="finder-menu" style="left:60px;">
-  <div class="item">À propos de Finder</div>
-  <div class="sep"></div>
-  <div class="item">Préférences… <span class="shortcut">⌘,</span></div>
-  <div class="sep"></div>
-  <div class="item">Vider la Corbeille… <span class="shortcut">⇧⌘⌫</span></div>
-</div>
-<div class="dropdown" id="file-menu" style="left:126px;">
-  <div class="item" id="menu-new-window">Nouvelle fenêtre Finder <span class="shortcut">⌘N</span></div>
-  <div class="item">Nouveau dossier <span class="shortcut">⇧⌘N</span></div>
-  <div class="sep"></div>
-  <div class="item">Fermer la fenêtre <span class="shortcut">⌘W</span></div>
-  <div class="item">Obtenir des informations <span class="shortcut">⌘I</span></div>
-</div>
-<div class="dropdown" id="edit-menu" style="left:180px;">
-  <div class="item">Annuler <span class="shortcut">⌘Z</span></div>
-  <div class="item">Rétablir <span class="shortcut">⇧⌘Z</span></div>
-  <div class="sep"></div>
-  <div class="item">Copier <span class="shortcut">⌘C</span></div>
-  <div class="item">Coller <span class="shortcut">⌘V</span></div>
-</div>
-<div class="dropdown" id="view-menu" style="left:230px;">
-  <div class="item">en Icônes <span class="shortcut">⌘1</span></div>
-  <div class="item">en Liste <span class="shortcut">⌘2</span></div>
-  <div class="item">en Colonnes <span class="shortcut">⌘3</span></div>
-  <div class="sep"></div>
-  <div class="item">Afficher la barre d'outils</div>
-</div>
-<div class="dropdown" id="go-menu" style="left:278px;">
-  <div class="item">Retour <span class="shortcut">⌘[</span></div>
-  <div class="item">Avancer <span class="shortcut">⌘]</span></div>
-  <div class="sep"></div>
-  <div class="item">Documents <span class="shortcut">⇧⌘O</span></div>
-  <div class="item">Bureau <span class="shortcut">⇧⌘D</span></div>
-</div>
-<div class="dropdown" id="window-menu" style="left:334px;">
-  <div class="item">Réduire <span class="shortcut">⌘M</span></div>
-  <div class="item">Zoomer</div>
-  <div class="sep"></div>
-  <div class="item">Tout ramener au premier plan</div>
-</div>
-<div class="dropdown" id="help-menu" style="left:398px;">
-  <div class="item">Aide Finder</div>
-</div>
-
-<!-- Control Center panel -->
-<div class="panel" id="cc-panel">
-  <div class="cc-grid">
-    <div class="cc-card"><b>Wi-Fi</b><div class="cc-row"><div class="dot">📶</div> Réseau Maison</div></div>
-    <div class="cc-card"><b>Bluetooth</b><div class="cc-row"><div class="dot">🔵</div> Activé</div></div>
-    <div class="cc-card" style="grid-column:1/3;"><b>Luminosité</b><div class="cc-slider"><div class="fill" style="width:80%;"></div></div></div>
-    <div class="cc-card" style="grid-column:1/3;"><b>Volume</b><div class="cc-slider"><div class="fill" style="width:55%;"></div></div></div>
+  <!-- Dropdown menus -->
+  <div class="dropdown" id="apple-menu" style="left:6px;">
+    <div class="item">À propos de ce Mac</div>
+    <div class="sep"></div>
+    <div class="item">Préférences Système…</div>
+    <div class="item">App Store…</div>
+    <div class="sep"></div>
+    <div class="item" id="menu-sleep">Mettre en veille</div>
+    <div class="item" id="menu-restart">Redémarrer…</div>
+    <div class="item" id="menu-shutdown">Éteindre…</div>
+    <div class="sep"></div>
+    <div class="item">Se déconnecter… <span class="shortcut">⇧⌘Q</span></div>
   </div>
-</div>
+  <div class="dropdown" id="finder-menu" style="left:60px;">
+    <div class="item">À propos de Finder</div>
+    <div class="sep"></div>
+    <div class="item">Préférences… <span class="shortcut">⌘,</span></div>
+    <div class="sep"></div>
+    <div class="item">Vider la Corbeille… <span class="shortcut">⇧⌘⌫</span></div>
+  </div>
+  <div class="dropdown" id="file-menu" style="left:126px;">
+    <div class="item" id="menu-new-window">Nouvelle fenêtre Finder <span class="shortcut">⌘N</span></div>
+    <div class="item">Nouveau dossier <span class="shortcut">⇧⌘N</span></div>
+    <div class="sep"></div>
+    <div class="item">Fermer la fenêtre <span class="shortcut">⌘W</span></div>
+    <div class="item">Obtenir des informations <span class="shortcut">⌘I</span></div>
+  </div>
+  <div class="dropdown" id="edit-menu" style="left:180px;">
+    <div class="item">Annuler <span class="shortcut">⌘Z</span></div>
+    <div class="item">Rétablir <span class="shortcut">⇧⌘Z</span></div>
+    <div class="sep"></div>
+    <div class="item">Copier <span class="shortcut">⌘C</span></div>
+    <div class="item">Coller <span class="shortcut">⌘V</span></div>
+  </div>
+  <div class="dropdown" id="view-menu" style="left:230px;">
+    <div class="item">en Icônes <span class="shortcut">⌘1</span></div>
+    <div class="item">en Liste <span class="shortcut">⌘2</span></div>
+    <div class="item">en Colonnes <span class="shortcut">⌘3</span></div>
+    <div class="sep"></div>
+    <div class="item">Afficher la barre d'outils</div>
+  </div>
+  <div class="dropdown" id="go-menu" style="left:278px;">
+    <div class="item">Retour <span class="shortcut">⌘[</span></div>
+    <div class="item">Avancer <span class="shortcut">⌘]</span></div>
+    <div class="sep"></div>
+    <div class="item">Documents <span class="shortcut">⇧⌘O</span></div>
+    <div class="item">Bureau <span class="shortcut">⇧⌘D</span></div>
+  </div>
+  <div class="dropdown" id="window-menu" style="left:334px;">
+    <div class="item">Réduire <span class="shortcut">⌘M</span></div>
+    <div class="item">Zoomer</div>
+    <div class="sep"></div>
+    <div class="item">Tout ramener au premier plan</div>
+  </div>
+  <div class="dropdown" id="help-menu" style="left:398px;">
+    <div class="item">Aide Finder</div>
+  </div>
 
-<!-- Spotlight panel -->
-<div class="spotlight-panel" id="spotlight-panel">
-  <input type="text" placeholder="Spotlight Search" id="spotlight-input">
-  <div class="spotlight-results" id="spotlight-results"></div>
-</div>
-
-<!-- Desktop context menu -->
-<div class="context-menu" id="desktop-context">
-  <div class="item" id="ctx-new-folder">Nouveau dossier</div>
-  <div class="item">Obtenir des informations</div>
-  <div class="sep"></div>
-  <div class="item">Modifier le fond d'écran…</div>
-  <div class="item">Ranger par ▸</div>
-  <div class="sep"></div>
-  <div class="item" id="ctx-refresh">Actualiser le Bureau</div>
-</div>
-<!-- Icon context menu -->
-<div class="context-menu" id="icon-context">
-  <div class="item" id="ctx-open">Ouvrir</div>
-  <div class="sep"></div>
-  <div class="item">Obtenir des informations</div>
-  <div class="item">Renommer</div>
-  <div class="sep"></div>
-  <div class="item">Mettre à la corbeille</div>
-</div>
-
-<!-- Desktop icons -->
-<div class="desktop-icons" id="desktop-icons">
-  <div class="desk-icon" data-app="timemachine"><div class="glyph icon-timemachine"></div><div class="label">Time Machine</div></div>
-  <div class="desk-icon" data-app="storage"><div class="glyph icon-drive"></div><div class="label">Storage</div></div>
-  <div class="desk-icon" data-app="movies"><div class="glyph icon-drive movies"></div><div class="label">Movies</div></div>
-</div>
-
-<!-- Dock -->
-<div class="dock-wrap">
-  <div class="dock" id="dock">
-    <div class="dock-item finder-bg" data-name="Finder" data-open="finder"><div class="ic"></div><div class="running-dot"></div></div>
-    <div class="dock-item launchpad-bg" data-name="Launchpad" data-open="launchpad">
-      <div class="launchpad-grid">
-        <div style="background:#ff6b6b"></div><div style="background:#feca57"></div><div style="background:#48dbfb"></div>
-        <div style="background:#1dd1a1"></div><div style="background:#5f27cd"></div><div style="background:#ff9ff3"></div>
-        <div style="background:#54a0ff"></div><div style="background:#00d2d3"></div><div style="background:#c8d6e5"></div>
+  <!-- Control Center panel -->
+  <div class="panel" id="cc-panel">
+    <div class="cc-grid">
+      <div class="cc-card"><b>Wi-Fi</b>
+        <div class="cc-row">
+          <div class="dot">📶</div> Réseau Maison
+        </div>
+      </div>
+      <div class="cc-card"><b>Bluetooth</b>
+        <div class="cc-row">
+          <div class="dot">🔵</div> Activé
+        </div>
+      </div>
+      <div class="cc-card" style="grid-column:1/3;"><b>Luminosité</b>
+        <div class="cc-slider">
+          <div class="fill" style="width:80%;"></div>
+        </div>
+      </div>
+      <div class="cc-card" style="grid-column:1/3;"><b>Volume</b>
+        <div class="cc-slider">
+          <div class="fill" style="width:55%;"></div>
+        </div>
       </div>
     </div>
-    <div class="dock-item mission-bg" data-name="Mission Control" data-open="mission"><div class="ic" style="font-size:22px;color:#fff;">▢▢</div></div>
-    <div class="dock-item reminders-bg" data-name="Reminders" data-open="reminders"><div class="ic"></div></div>
-    <div class="dock-item safari-bg" data-name="Safari" data-open="safari"><div class="ic"></div></div>
-    <div class="dock-item mail-bg" data-name="Mail" data-open="mail"><div class="ic"></div></div>
-    <div class="dock-item calendar-bg" data-name="Calendar" data-open="calendar">
-      <div class="ic" style="flex-direction:column;padding:0;">
-        <div style="background:#ff3b30;color:#fff;font-size:9px;font-weight:700;width:100%;text-align:center;border-radius:12px 12px 0 0;">DEC</div>
-        <div style="font-size:26px;font-weight:600;color:#1c1c1e;">1</div>
+  </div>
+
+  <!-- Spotlight panel -->
+  <div class="spotlight-panel" id="spotlight-panel">
+    <input type="text" placeholder="Spotlight Search" id="spotlight-input">
+    <div class="spotlight-results" id="spotlight-results"></div>
+  </div>
+
+  <!-- Desktop context menu -->
+  <div class="context-menu" id="desktop-context">
+    <div class="item" id="ctx-new-folder">Nouveau dossier</div>
+    <div class="item">Obtenir des informations</div>
+    <div class="sep"></div>
+    <div class="item">Modifier le fond d'écran…</div>
+    <div class="item">Ranger par ▸</div>
+    <div class="sep"></div>
+    <div class="item" id="ctx-refresh">Actualiser le Bureau</div>
+  </div>
+  <!-- Icon context menu -->
+  <div class="context-menu" id="icon-context">
+    <div class="item" id="ctx-open">Ouvrir</div>
+    <div class="sep"></div>
+    <div class="item">Obtenir des informations</div>
+    <div class="item">Renommer</div>
+    <div class="sep"></div>
+    <div class="item">Mettre à la corbeille</div>
+  </div>
+
+  <!-- Desktop widgets -->
+  <div class="widgets-col">
+    <div class="widget widget-weather">
+      <div class="w-icon">☀️</div>
+      <div class="w-loc">Saint-Étienne</div>
+      <div class="w-temp">21°</div>
+      <div class="w-desc">Ensoleillé · Max 24° Min 14°</div>
+    </div>
+    <div class="widget widget-calendar">
+      <div class="wc-day" id="widget-day">mardi</div>
+      <div class="wc-date" id="widget-date">1</div>
+      <div class="wc-month" id="widget-month">décembre</div>
+    </div>
+  </div>
+
+  <!-- Notification Center -->
+  <div class="notif-edge" id="notif-edge"></div>
+  <div class="notif-center" id="notif-center">
+    <div class="notif-widgets-title">Notifications</div>
+    <div class="notif-card">
+      <div class="n-head">
+        <div class="n-icon" style="background:#0a84ff;">✉️</div>Mail<span class="n-time">09:02</span>
+      </div>
+      <div class="n-body">Aucun nouveau message.</div>
+    </div>
+    <div class="notif-card">
+      <div class="n-head">
+        <div class="n-icon" style="background:#34c759;">💬</div>Messages<span class="n-time">08:47</span>
+      </div>
+      <div class="n-body">Marie : On se voit toujours à midi ?</div>
+    </div>
+    <div class="notif-card">
+      <div class="n-head">
+        <div class="n-icon" style="background:#ff9500;">✔️</div>Rappels<span class="n-time">08:00</span>
+      </div>
+      <div class="n-body">Penser à sauvegarder le projet.</div>
+    </div>
+    <div class="notif-card">
+      <div class="n-head">
+        <div class="n-icon" style="background:#5856d6;">🔄</div>Mise à jour logicielle<span class="n-time">Hier</span>
+      </div>
+      <div class="n-body">macOS Big Sur 11.6 est disponible.</div>
+    </div>
+  </div>
+
+  <!-- Shutdown overlay -->
+  <div class="shutdown-overlay" id="shutdown-overlay">
+    <div class="shutdown-spinner"></div>
+  </div>
+
+  <!-- Cmd+Tab app switcher -->
+  <div class="app-switcher" id="app-switcher"></div>
+
+  <!-- Desktop icons -->
+  <div class="desktop-icons" id="desktop-icons">
+    <div class="desk-icon" data-app="timemachine">
+      <div class="glyph icon-timemachine"></div>
+      <div class="label">Time Machine</div>
+    </div>
+    <div class="desk-icon" data-app="storage">
+      <div class="glyph icon-drive"></div>
+      <div class="label">Storage</div>
+    </div>
+    <div class="desk-icon" data-app="movies">
+      <div class="glyph icon-drive movies"></div>
+      <div class="label">Movies</div>
+    </div>
+  </div>
+
+  <!-- Dock -->
+  <div class="dock-wrap">
+    <div class="dock" id="dock">
+      <div class="dock-item finder-bg" data-name="Finder" data-open="finder">
+        <div class="ic"></div>
+        <div class="running-dot"></div>
+      </div>
+      <div class="dock-item launchpad-bg" data-name="Launchpad" data-open="launchpad">
+        <div class="launchpad-grid">
+          <div style="background:#ff6b6b"></div>
+          <div style="background:#feca57"></div>
+          <div style="background:#48dbfb"></div>
+          <div style="background:#1dd1a1"></div>
+          <div style="background:#5f27cd"></div>
+          <div style="background:#ff9ff3"></div>
+          <div style="background:#54a0ff"></div>
+          <div style="background:#00d2d3"></div>
+          <div style="background:#c8d6e5"></div>
+        </div>
+      </div>
+      <div class="dock-item mission-bg" data-name="Mission Control" data-open="mission">
+        <div class="ic" style="font-size:22px;color:#fff;">▢▢</div>
+      </div>
+      <div class="dock-item reminders-bg" data-name="Reminders" data-open="reminders">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item safari-bg" data-name="Safari" data-open="safari">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item mail-bg" data-name="Mail" data-open="mail">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item calendar-bg" data-name="Calendar" data-open="calendar">
+        <div class="ic" style="flex-direction:column;padding:0;">
+          <div
+            style="background:#ff3b30;color:#fff;font-size:9px;font-weight:700;width:100%;text-align:center;border-radius:12px 12px 0 0;">
+            DEC</div>
+          <div style="font-size:26px;font-weight:600;color:#1c1c1e;">1</div>
+        </div>
+      </div>
+      <div class="dock-item messages-bg" data-name="Messages" data-open="messages">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item maps-bg" data-name="Maps" data-open="maps">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item photos-bg" data-name="Photos" data-open="photos">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item facetime-bg" data-name="FaceTime" data-open="facetime">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item facetime-bg" data-name="FaceTime" data-open="facetime">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item contacts-bg" data-name="Contacts" data-open="contacts">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item wallet-bg" data-name="Wallet" data-open="wallet">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item lists-bg" data-name="Lists" data-open="lists">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item stickies-bg" data-name="Stickies" data-open="stickies">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item findmy-bg" data-name="Find My" data-open="findmy">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item appletv-bg" data-name="Apple TV" data-open="appletv">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item music-bg" data-name="Music" data-open="music">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item podcasts-bg" data-name="Podcasts" data-open="podcasts">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item appstore-bg" data-name="App Store" data-open="appstore">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item settings-bg" data-name="System Preferences" data-open="settings">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-divider"></div>
+      <div class="dock-item downloads-bg" data-name="Downloads" data-open="downloads">
+        <div class="ic"></div>
+      </div>
+      <div class="dock-item trash-bg" data-name="Trash" data-open="trash">
+        <div class="ic"></div>
       </div>
     </div>
-    <div class="dock-item messages-bg" data-name="Messages" data-open="messages"><div class="ic"></div></div>
-    <div class="dock-item maps-bg" data-name="Maps" data-open="maps"><div class="ic"></div></div>
-    <div class="dock-item photos-bg" data-name="Photos" data-open="photos"><div class="ic"></div></div>
-    <div class="dock-item facetime-bg" data-name="FaceTime" data-open="facetime"><div class="ic"></div></div>
-    <div class="dock-item facetime-bg" data-name="FaceTime" data-open="facetime"><div class="ic"></div></div>
-    <div class="dock-item contacts-bg" data-name="Contacts" data-open="contacts"><div class="ic"></div></div>
-    <div class="dock-item wallet-bg" data-name="Wallet" data-open="wallet"><div class="ic"></div></div>
-    <div class="dock-item lists-bg" data-name="Lists" data-open="lists"><div class="ic"></div></div>
-    <div class="dock-item stickies-bg" data-name="Stickies" data-open="stickies"><div class="ic"></div></div>
-    <div class="dock-item findmy-bg" data-name="Find My" data-open="findmy"><div class="ic"></div></div>
-    <div class="dock-item appletv-bg" data-name="Apple TV" data-open="appletv"><div class="ic"></div></div>
-    <div class="dock-item music-bg" data-name="Music" data-open="music"><div class="ic"></div></div>
-    <div class="dock-item podcasts-bg" data-name="Podcasts" data-open="podcasts"><div class="ic"></div></div>
-    <div class="dock-item appstore-bg" data-name="App Store" data-open="appstore"><div class="ic"></div></div>
-    <div class="dock-item settings-bg" data-name="System Preferences" data-open="settings"><div class="ic"></div></div>
-    <div class="dock-divider"></div>
-    <div class="dock-item downloads-bg" data-name="Downloads" data-open="downloads"><div class="ic"></div></div>
-    <div class="dock-item trash-bg" data-name="Trash" data-open="trash"><div class="ic"></div></div>
   </div>
-</div>
 
-<!-- Launchpad overlay -->
-<div class="launchpad-overlay" id="launchpad-overlay">
-  <div class="lp-search">Q Rechercher</div>
-  <div class="lp-grid" id="lp-grid"></div>
-</div>
+  <!-- Launchpad overlay -->
+  <div class="launchpad-overlay" id="launchpad-overlay">
+    <div class="lp-search">Q Rechercher</div>
+    <div class="lp-grid" id="lp-grid"></div>
+  </div>
 
-<!-- Mission Control overlay -->
-<div class="mission-overlay" id="mission-overlay"></div>
+  <!-- Mission Control overlay -->
+  <div class="mission-overlay" id="mission-overlay"></div>
 
-<!-- Screensaver -->
-<div class="screensaver" id="screensaver">
-  <div class="ss-clock" id="ss-clock">09:10</div>
-  <div class="ss-date" id="ss-date">Mardi 1 décembre</div>
-</div>
+  <!-- Screensaver -->
+  <div class="screensaver" id="screensaver">
+    <div class="ss-clock" id="ss-clock">09:10</div>
+    <div class="ss-date" id="ss-date">Mardi 1 décembre</div>
+  </div>
 
-<!-- Windows container -->
-<div id="windows-root"></div>
+  <!-- Split view snap overlays -->
+  <div class="snap-overlay left" id="snap-left"></div>
+  <div class="snap-overlay right" id="snap-right"></div>
 
-<script>
-/* ============================================================
-   ICONS (SVG) — hand-drawn approximations of macOS glyphs
-   ============================================================ */
-const SVG_ICONS = {
-  finder: `<svg viewBox="0 0 100 100"><defs><linearGradient id="fL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8bd9ff"/><stop offset="1" stop-color="#1a8fd1"/></linearGradient><linearGradient id="fR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f7fd6"/><stop offset="1" stop-color="#0b5fae"/></linearGradient></defs>
+  <!-- Windows container -->
+  <div id="windows-root"></div>
+
+  <script>
+    /* ============================================================
+       ICONS (SVG) — hand-drawn approximations of macOS glyphs
+       ============================================================ */
+    const SVG_ICONS = {
+      finder: `<svg viewBox="0 0 100 100"><defs><linearGradient id="fL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8bd9ff"/><stop offset="1" stop-color="#1a8fd1"/></linearGradient><linearGradient id="fR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f7fd6"/><stop offset="1" stop-color="#0b5fae"/></linearGradient></defs>
     <path d="M50 4 A46 46 0 0 0 50 96 Z" fill="url(#fL)"/>
     <path d="M50 4 A46 46 0 0 1 50 96 Z" fill="url(#fR)"/>
     <circle cx="34" cy="42" r="6" fill="#0b3b66"/>
     <circle cx="66" cy="42" r="6" fill="#fff"/>
     <path d="M28 62 Q50 78 72 62" stroke="#0b3b66" stroke-width="5" fill="none" stroke-linecap="round"/></svg>`,
-  reminders: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
+      reminders: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
     <circle cx="50" cy="30" r="10" fill="none" stroke="#ff9500" stroke-width="5"/>
     <path d="M25 55 L42 72 L78 34" stroke="#0a84ff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  safari: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff"/>
+      safari: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fff"/>
     <circle cx="50" cy="50" r="44" fill="none" stroke="#e6e6e6" stroke-width="2"/>
     <g transform="rotate(45 50 50)">
       <polygon points="50,14 58,50 50,86 42,50" fill="#ff3b30"/>
       <polygon points="50,14 58,50 50,86 42,50" fill="#e5e5e5" transform="rotate(180 50 50)"/>
     </g>
     <circle cx="50" cy="50" r="4" fill="#888"/></svg>`,
-  mail: `<svg viewBox="0 0 100 100"><rect x="6" y="20" width="88" height="64" rx="12" fill="#fff"/>
+      mail: `<svg viewBox="0 0 100 100"><rect x="6" y="20" width="88" height="64" rx="12" fill="#fff"/>
     <path d="M10 26 L50 58 L90 26" stroke="#2f8fe6" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
-  messages: `<svg viewBox="0 0 100 100"><path d="M10 20 Q10 8 24 8 H76 Q90 8 90 20 V60 Q90 72 76 72 H40 L18 90 L22 72 H24 Q10 72 10 60 Z" fill="#fff"/></svg>`,
-  maps: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="18" fill="#f2ede3"/>
+      messages: `<svg viewBox="0 0 100 100"><path d="M10 20 Q10 8 24 8 H76 Q90 8 90 20 V60 Q90 72 76 72 H40 L18 90 L22 72 H24 Q10 72 10 60 Z" fill="#fff"/></svg>`,
+      maps: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="18" fill="#f2ede3"/>
     <path d="M20 30 L45 20 L70 30 L82 24 V78 L70 84 L45 74 L20 84 L10 90 V32 Z" fill="#7fd17f" stroke="#fff" stroke-width="2"/>
     <circle cx="55" cy="46" r="10" fill="#ff3b30"/><path d="M55 56 L55 66" stroke="#ff3b30" stroke-width="4"/></svg>`,
-  photos: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="#fff"/>
+      photos: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="#fff"/>
     <circle cx="50" cy="30" r="18" fill="#ff5f57"/><circle cx="72" cy="55" r="18" fill="#ffbd2e"/>
     <circle cx="50" cy="72" r="18" fill="#28c940"/><circle cx="28" cy="55" r="18" fill="#0a84ff"/></svg>`,
-  facetime: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
+      facetime: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
     <rect x="16" y="30" width="46" height="40" rx="8" fill="#3a3a3c"/>
     <path d="M62 45 L84 32 V68 L62 55 Z" fill="#3a3a3c"/></svg>`,
-  contacts: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
+      contacts: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#fff"/>
     <circle cx="50" cy="38" r="16" fill="#8a5a2b"/><path d="M20 82 Q50 55 80 82" fill="#8a5a2b"/></svg>`,
-  wallet: `<svg viewBox="0 0 100 100"><rect x="8" y="24" width="84" height="56" rx="10" fill="#fff"/>
+      wallet: `<svg viewBox="0 0 100 100"><rect x="8" y="24" width="84" height="56" rx="10" fill="#fff"/>
     <rect x="8" y="38" width="84" height="14" fill="#0a84ff"/>
     <circle cx="80" cy="65" r="7" fill="#ffbd2e"/></svg>`,
-  lists: `<svg viewBox="0 0 100 100"><rect x="10" y="6" width="80" height="88" rx="10" fill="#fff"/>
+      lists: `<svg viewBox="0 0 100 100"><rect x="10" y="6" width="80" height="88" rx="10" fill="#fff"/>
     <circle cx="26" cy="30" r="4" fill="#ff3b30"/><rect x="38" y="27" width="44" height="6" rx="3" fill="#ccc"/>
     <circle cx="26" cy="50" r="4" fill="#ff9500"/><rect x="38" y="47" width="44" height="6" rx="3" fill="#ccc"/>
     <circle cx="26" cy="70" r="4" fill="#34c759"/><rect x="38" y="67" width="44" height="6" rx="3" fill="#ccc"/></svg>`,
-  stickies: `<svg viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" fill="#fdf3b0"/>
+      stickies: `<svg viewBox="0 0 100 100"><rect x="8" y="8" width="84" height="84" fill="#fdf3b0"/>
     <rect x="18" y="24" width="64" height="5" fill="#d8c86a"/><rect x="18" y="38" width="64" height="5" fill="#d8c86a"/>
     <rect x="18" y="52" width="40" height="5" fill="#d8c86a"/></svg>`,
-  findmy: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#1c1c1e"/>
+      findmy: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#1c1c1e"/>
     <circle cx="50" cy="50" r="26" fill="none" stroke="#4cd6ff" stroke-width="4"/>
     <circle cx="50" cy="50" r="8" fill="#4cd6ff"/></svg>`,
-  appletv: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="18" fill="#000"/>
+      appletv: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="18" fill="#000"/>
     <path d="M35 40 Q50 30 65 40 L57 60 H43 Z" fill="#fff"/></svg>`,
-  music: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fb2f5d"/>
+      music: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#fb2f5d"/>
     <path d="M42 35 L70 28 V60" stroke="#fff" stroke-width="5" fill="none"/>
     <circle cx="38" cy="66" r="9" fill="#fff"/><circle cx="66" cy="58" r="9" fill="#fff"/></svg>`,
-  podcasts: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#9b3fd1"/>
+      podcasts: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#9b3fd1"/>
     <circle cx="50" cy="38" r="14" fill="#fff"/><path d="M38 55 Q50 75 62 55 L68 90 H32 Z" fill="#fff"/></svg>`,
-  appstore: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#0a84ff"/>
+      appstore: `<svg viewBox="0 0 100 100"><rect x="6" y="6" width="88" height="88" rx="20" fill="#0a84ff"/>
     <path d="M50 22 L64 60 H36 Z" fill="#fff"/><rect x="46" y="60" width="8" height="18" fill="#fff"/></svg>`,
-  settings: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#9a9aa0"/>
+      settings: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#9a9aa0"/>
     <circle cx="50" cy="50" r="18" fill="#e5e5e7"/>
     <g fill="#e5e5e7">
       <rect x="46" y="6" width="8" height="16"/><rect x="46" y="78" width="8" height="16"/>
       <rect x="6" y="46" width="16" height="8"/><rect x="78" y="46" width="16" height="8"/>
     </g></svg>`,
-  downloads: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#3aa0e8"/>
+      downloads: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#3aa0e8"/>
     <path d="M50 22 V60 M34 46 L50 62 L66 46" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <rect x="30" y="72" width="40" height="7" rx="3" fill="#fff"/></svg>`,
-  trash: `<svg viewBox="0 0 100 100"><path d="M28 30 H72 L68 88 H32 Z" fill="#d9d9dc"/>
+      trash: `<svg viewBox="0 0 100 100"><path d="M28 30 H72 L68 88 H32 Z" fill="#d9d9dc"/>
     <rect x="20" y="22" width="60" height="10" rx="3" fill="#c9c9cc"/><rect x="40" y="10" width="20" height="10" rx="3" fill="#c9c9cc"/></svg>`
-};
+    };
 
-function iconSVG(name){ return SVG_ICONS[name] || ''; }
-document.querySelectorAll('.dock-item[data-open]').forEach(el=>{
-  const key = el.dataset.open;
-  if(SVG_ICONS[key]){
-    const icEl = el.querySelector('.ic');
-    if(icEl && icEl.innerHTML.trim()==='') icEl.innerHTML = iconSVG(key);
-  }
-});
+    function iconSVG(name) { return SVG_ICONS[name] || ''; }
+    document.querySelectorAll('.dock-item[data-open]').forEach(el => {
+      const key = el.dataset.open;
+      if (SVG_ICONS[key]) {
+        const icEl = el.querySelector('.ic');
+        if (icEl && icEl.innerHTML.trim() === '') icEl.innerHTML = iconSVG(key);
+      }
+    });
 
-/* ============================================================
-   CLOCK
-   ============================================================ */
-const DAYS_FR=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
-const MONTHS_FR=['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
-const MONTHS_LONG_FR=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
-const DAYS_LONG_FR=['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
-function updateClock(){
-  const now = new Date();
-  const h = now.getHours().toString().padStart(2,'0');
-  const m = now.getMinutes().toString().padStart(2,'0');
-  document.getElementById('clock').textContent = `${DAYS_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FR[now.getMonth()]} ${h}:${m}`;
-  const ssClock = document.getElementById('ss-clock');
-  const ssDate = document.getElementById('ss-date');
-  if(ssClock){ ssClock.textContent = `${h}:${m}`; ssDate.textContent = `${DAYS_LONG_FR[now.getDay()]} ${now.getDate()} ${MONTHS_LONG_FR[now.getMonth()]}`; }
-}
-updateClock();
-setInterval(updateClock, 1000*15);
-
-/* ============================================================
-   SOUND (tiny synthesized click, no external file)
-   ============================================================ */
-let audioCtx = null;
-function playBlip(freq=600, dur=0.05, vol=0.05){
-  try{
-    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type='sine'; o.frequency.value=freq;
-    g.gain.value=vol;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start();
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime+dur);
-    o.stop(audioCtx.currentTime+dur);
-  }catch(e){}
-}
-
-/* ============================================================
-   MENUS (dropdown)
-   ============================================================ */
-const menuEntries = document.querySelectorAll('.menu-entry');
-let activeMenu = null;
-function closeAllMenus(){
-  document.querySelectorAll('.dropdown.show').forEach(d=>d.classList.remove('show'));
-  menuEntries.forEach(e=>e.classList.remove('open'));
-  activeMenu = null;
-}
-menuEntries.forEach(entry=>{
-  entry.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    const id = entry.dataset.menu;
-    const dd = document.getElementById(id);
-    const wasOpen = dd.classList.contains('show');
-    closeAllMenus();
-    if(!wasOpen){ dd.classList.add('show'); entry.classList.add('open'); activeMenu = id; }
-  });
-  entry.addEventListener('mouseenter', ()=>{
-    if(activeMenu){
-      closeAllMenus();
-      const id = entry.dataset.menu;
-      document.getElementById(id).classList.add('show');
-      entry.classList.add('open');
-      activeMenu = id;
+    /* ============================================================
+       CLOCK
+       ============================================================ */
+    const DAYS_FR = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const MONTHS_FR = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+    const MONTHS_LONG_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const DAYS_LONG_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    function updateClock() {
+      const now = new Date();
+      const h = now.getHours().toString().padStart(2, '0');
+      const m = now.getMinutes().toString().padStart(2, '0');
+      document.getElementById('clock').textContent = `${DAYS_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FR[now.getMonth()]} ${h}:${m}`;
+      const ssClock = document.getElementById('ss-clock');
+      const ssDate = document.getElementById('ss-date');
+      if (ssClock) { ssClock.textContent = `${h}:${m}`; ssDate.textContent = `${DAYS_LONG_FR[now.getDay()]} ${now.getDate()} ${MONTHS_LONG_FR[now.getMonth()]}`; }
+      const wd = document.getElementById('widget-day'), wdate = document.getElementById('widget-date'), wm = document.getElementById('widget-month');
+      if (wd) { wd.textContent = DAYS_LONG_FR[now.getDay()]; wdate.textContent = now.getDate(); wm.textContent = MONTHS_LONG_FR[now.getMonth()]; }
     }
-  });
-});
-document.getElementById('menu-new-window').addEventListener('click', ()=> openApp('finder'));
+    updateClock();
+    setInterval(updateClock, 1000 * 15);
 
-/* ============================================================
-   CONTROL CENTER / SPOTLIGHT
-   ============================================================ */
-const ccBtn = document.getElementById('btn-cc');
-const ccPanel = document.getElementById('cc-panel');
-const spotBtn = document.getElementById('btn-spotlight');
-const spotPanel = document.getElementById('spotlight-panel');
-const spotInput = document.getElementById('spotlight-input');
-const spotResults = document.getElementById('spotlight-results');
+    /* ============================================================
+       SOUND (tiny synthesized click, no external file)
+       ============================================================ */
+    let audioCtx = null;
+    function playBlip(freq = 600, dur = 0.05, vol = 0.05) {
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = freq;
+        g.gain.value = vol;
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+        o.stop(audioCtx.currentTime + dur);
+      } catch (e) { }
+    }
 
-const SPOTLIGHT_ITEMS = [
-  {name:'Safari', icon:'🧭', app:'safari'},
-  {name:'Mail', icon:'✉️', app:'mail'},
-  {name:'Messages', icon:'💬', app:'messages'},
-  {name:'Calendrier', icon:'📅', app:'calendar'},
-  {name:'Photos', icon:'🌸', app:'photos'},
-  {name:'App Store', icon:'🅰️', app:'appstore'},
-  {name:'Préférences Système', icon:'⚙️', app:'settings'},
-  {name:'Finder', icon:'🙂', app:'finder'},
-  {name:'Musique', icon:'🎵', app:'music'},
-  {name:'Notes', icon:'📝', app:'stickies'},
-  {name:'Rappels', icon:'✔️', app:'reminders'},
-  {name:'Contacts', icon:'👤', app:'contacts'},
-  {name:'Documents.pdf', icon:'📄', app:'finder'},
-  {name:'Rapport annuel.docx', icon:'📄', app:'finder'},
-];
+    /* ============================================================
+       MENUS (dropdown)
+       ============================================================ */
+    const menuEntries = document.querySelectorAll('.menu-entry');
+    let activeMenu = null;
+    function closeAllMenus() {
+      document.querySelectorAll('.dropdown.show').forEach(d => d.classList.remove('show'));
+      menuEntries.forEach(e => e.classList.remove('open'));
+      activeMenu = null;
+    }
+    menuEntries.forEach(entry => {
+      entry.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = entry.dataset.menu;
+        const dd = document.getElementById(id);
+        const wasOpen = dd.classList.contains('show');
+        closeAllMenus();
+        if (!wasOpen) { dd.classList.add('show'); entry.classList.add('open'); activeMenu = id; }
+      });
+      entry.addEventListener('mouseenter', () => {
+        if (activeMenu) {
+          closeAllMenus();
+          const id = entry.dataset.menu;
+          document.getElementById(id).classList.add('show');
+          entry.classList.add('open');
+          activeMenu = id;
+        }
+      });
+    });
+    document.getElementById('menu-new-window').addEventListener('click', () => openApp('finder'));
 
-function renderSpotlight(query){
-  spotResults.innerHTML = '';
-  const q = query.trim().toLowerCase();
-  if(!q){ return; }
-  const matches = SPOTLIGHT_ITEMS.filter(i=>i.name.toLowerCase().includes(q));
-  if(matches.length===0){
-    spotResults.innerHTML = '<div class="empty">Aucun résultat</div>';
-    return;
-  }
-  matches.forEach((m,idx)=>{
-    const div = document.createElement('div');
-    div.className = 'res'+(idx===0?' active':'');
-    div.innerHTML = `<span class="r-ic">${m.icon}</span><span>${m.name}</span>`;
-    div.addEventListener('click', ()=>{ openApp(m.app); closeAllPanels(); spotInput.value=''; spotResults.innerHTML=''; });
-    spotResults.appendChild(div);
-  });
-}
-spotInput.addEventListener('input', ()=> renderSpotlight(spotInput.value));
-spotInput.addEventListener('keydown', (e)=>{
-  if(e.key==='Enter'){
-    const first = spotResults.querySelector('.res');
-    if(first) first.click();
-  }
-});
+    /* ============================================================
+       CONTROL CENTER / SPOTLIGHT
+       ============================================================ */
+    const ccBtn = document.getElementById('btn-cc');
+    const ccPanel = document.getElementById('cc-panel');
+    const spotBtn = document.getElementById('btn-spotlight');
+    const spotPanel = document.getElementById('spotlight-panel');
+    const spotInput = document.getElementById('spotlight-input');
+    const spotResults = document.getElementById('spotlight-results');
 
-function closeAllPanels(){
-  ccPanel.classList.remove('show');
-  spotPanel.classList.remove('show');
-  ccBtn.classList.remove('open');
-  spotBtn.classList.remove('open');
-}
-ccBtn.addEventListener('click', (e)=>{
-  e.stopPropagation();
-  spotPanel.classList.remove('show'); spotBtn.classList.remove('open');
-  ccPanel.classList.toggle('show'); ccBtn.classList.toggle('open');
-});
-spotBtn.addEventListener('click', (e)=>{
-  e.stopPropagation();
-  ccPanel.classList.remove('show'); ccBtn.classList.remove('open');
-  spotPanel.classList.toggle('show'); spotBtn.classList.toggle('open');
-  if(spotPanel.classList.contains('show')) spotInput.focus();
-});
-ccPanel.addEventListener('click', e=>e.stopPropagation());
-spotPanel.addEventListener('click', e=>e.stopPropagation());
+    const SPOTLIGHT_ITEMS = [
+      { name: 'Safari', icon: '🧭', app: 'safari' },
+      { name: 'Mail', icon: '✉️', app: 'mail' },
+      { name: 'Messages', icon: '💬', app: 'messages' },
+      { name: 'Calendrier', icon: '📅', app: 'calendar' },
+      { name: 'Photos', icon: '🌸', app: 'photos' },
+      { name: 'App Store', icon: '🅰️', app: 'appstore' },
+      { name: 'Préférences Système', icon: '⚙️', app: 'settings' },
+      { name: 'Finder', icon: '🙂', app: 'finder' },
+      { name: 'Musique', icon: '🎵', app: 'music' },
+      { name: 'Notes', icon: '📝', app: 'stickies' },
+      { name: 'Rappels', icon: '✔️', app: 'reminders' },
+      { name: 'Contacts', icon: '👤', app: 'contacts' },
+      { name: 'Documents.pdf', icon: '📄', app: 'finder' },
+      { name: 'Rapport annuel.docx', icon: '📄', app: 'finder' },
+    ];
 
-/* ============================================================
-   CONTEXT MENUS (right click)
-   ============================================================ */
-const desktopCtx = document.getElementById('desktop-context');
-const iconCtx = document.getElementById('icon-context');
-function hideContextMenus(){ desktopCtx.classList.remove('show'); iconCtx.classList.remove('show'); }
-function showContextAt(menu, x, y){
-  hideContextMenus();
-  const vw = window.innerWidth, vh = window.innerHeight;
-  menu.style.left = Math.min(x, vw-230)+'px';
-  menu.style.top = Math.min(y, vh-160)+'px';
-  menu.classList.add('show');
-}
-document.addEventListener('contextmenu', (e)=>{
-  const iconEl = e.target.closest('.desk-icon');
-  const isDesktop = !e.target.closest('.window') && !e.target.closest('.dock') && !e.target.closest('.menubar') && !e.target.closest('.panel') && !e.target.closest('.spotlight-panel');
-  if(!isDesktop) return; // allow native inside windows text areas etc but we still block default below for non-window
-  e.preventDefault();
-  if(iconEl){
-    iconCtx.dataset.target = iconEl.dataset.app;
-    showContextAt(iconCtx, e.clientX, e.clientY);
-  } else {
-    showContextAt(desktopCtx, e.clientX, e.clientY);
-  }
-});
-document.getElementById('ctx-open').addEventListener('click', ()=>{
-  openApp('finder');
-  hideContextMenus();
-});
-document.getElementById('ctx-new-folder').addEventListener('click', hideContextMenus);
-document.getElementById('ctx-refresh').addEventListener('click', hideContextMenus);
+    function renderSpotlight(query) {
+      spotResults.innerHTML = '';
+      const q = query.trim().toLowerCase();
+      if (!q) { return; }
+      const matches = SPOTLIGHT_ITEMS.filter(i => i.name.toLowerCase().includes(q));
+      if (matches.length === 0) {
+        spotResults.innerHTML = '<div class="empty">Aucun résultat</div>';
+        return;
+      }
+      matches.forEach((m, idx) => {
+        const div = document.createElement('div');
+        div.className = 'res' + (idx === 0 ? ' active' : '');
+        div.innerHTML = `<span class="r-ic">${m.icon}</span><span>${m.name}</span>`;
+        div.addEventListener('click', () => { openApp(m.app); closeAllPanels(); spotInput.value = ''; spotResults.innerHTML = ''; });
+        spotResults.appendChild(div);
+      });
+    }
+    spotInput.addEventListener('input', () => renderSpotlight(spotInput.value));
+    spotInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const first = spotResults.querySelector('.res');
+        if (first) first.click();
+      }
+    });
 
-/* ============================================================
-   GLOBAL CLICK: close menus/panels/context
-   ============================================================ */
-document.addEventListener('click', ()=>{
-  closeAllMenus();
-  closeAllPanels();
-  hideContextMenus();
-  document.querySelectorAll('.desk-icon').forEach(o=>o.classList.remove('selected'));
-});
+    function closeAllPanels() {
+      ccPanel.classList.remove('show');
+      spotPanel.classList.remove('show');
+      ccBtn.classList.remove('open');
+      spotBtn.classList.remove('open');
+    }
+    ccBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      spotPanel.classList.remove('show'); spotBtn.classList.remove('open');
+      ccPanel.classList.toggle('show'); ccBtn.classList.toggle('open');
+    });
+    spotBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      ccPanel.classList.remove('show'); ccBtn.classList.remove('open');
+      spotPanel.classList.toggle('show'); spotBtn.classList.toggle('open');
+      if (spotPanel.classList.contains('show')) spotInput.focus();
+    });
+    ccPanel.addEventListener('click', e => e.stopPropagation());
+    spotPanel.addEventListener('click', e => e.stopPropagation());
 
-/* ============================================================
-   DESKTOP ICONS: select + double click
-   ============================================================ */
-document.querySelectorAll('.desk-icon').forEach(el=>{
-  el.addEventListener('mousedown', (e)=>{
-    e.stopPropagation();
-    document.querySelectorAll('.desk-icon').forEach(o=>o.classList.remove('selected'));
-    el.classList.add('selected');
-  });
-  el.addEventListener('dblclick', ()=>{ openApp('finder'); });
-});
+    /* ============================================================
+       CONTEXT MENUS (right click)
+       ============================================================ */
+    const desktopCtx = document.getElementById('desktop-context');
+    const iconCtx = document.getElementById('icon-context');
+    function hideContextMenus() { desktopCtx.classList.remove('show'); iconCtx.classList.remove('show'); }
+    function showContextAt(menu, x, y) {
+      hideContextMenus();
+      const vw = window.innerWidth, vh = window.innerHeight;
+      menu.style.left = Math.min(x, vw - 230) + 'px';
+      menu.style.top = Math.min(y, vh - 160) + 'px';
+      menu.classList.add('show');
+    }
+    document.addEventListener('contextmenu', (e) => {
+      const iconEl = e.target.closest('.desk-icon');
+      const isDesktop = !e.target.closest('.window') && !e.target.closest('.dock') && !e.target.closest('.menubar') && !e.target.closest('.panel') && !e.target.closest('.spotlight-panel');
+      if (!isDesktop) return; // allow native inside windows text areas etc but we still block default below for non-window
+      e.preventDefault();
+      if (iconEl) {
+        iconCtx.dataset.target = iconEl.dataset.app;
+        showContextAt(iconCtx, e.clientX, e.clientY);
+      } else {
+        showContextAt(desktopCtx, e.clientX, e.clientY);
+      }
+    });
+    document.getElementById('ctx-open').addEventListener('click', () => {
+      openApp('finder');
+      hideContextMenus();
+    });
+    document.getElementById('ctx-new-folder').addEventListener('click', hideContextMenus);
+    document.getElementById('ctx-refresh').addEventListener('click', hideContextMenus);
 
-/* ============================================================
-   DOCK: progressive magnification + click open + bounce
-   ============================================================ */
-const dock = document.getElementById('dock');
-const dockItems = Array.from(dock.querySelectorAll('.dock-item'));
-function dockRange(){ return window.innerWidth < 700 ? 70 : 110; }
-function maxScale(){ return window.innerWidth < 700 ? 1.35 : 1.7; }
+    /* ============================================================
+       GLOBAL CLICK: close menus/panels/context
+       ============================================================ */
+    document.addEventListener('click', () => {
+      closeAllMenus();
+      closeAllPanels();
+      hideContextMenus();
+      document.querySelectorAll('.desk-icon').forEach(o => o.classList.remove('selected'));
+    });
 
-function magnify(mouseX){
-  const RANGE = dockRange(), MAX_SCALE = maxScale();
-  dockItems.forEach(item=>{
-    const rect = item.getBoundingClientRect();
-    const center = rect.left + rect.width/2;
-    const dist = Math.abs(mouseX - center);
-    let scale = 1;
-    if(dist < RANGE) scale = 1 + (MAX_SCALE-1) * (1 - dist/RANGE);
-    item.style.setProperty('--mag', scale.toFixed(3));
-    if(!item.classList.contains('bounce')) item.style.transform = `translateY(${(scale-1)*-18}px) scale(${scale})`;
-    const m = dist < RANGE ? (scale-1)*6 : 0;
-    item.style.marginLeft = m+'px'; item.style.marginRight = m+'px';
-  });
-}
-function resetDock(){
-  dockItems.forEach(item=>{
-    item.style.transform='translateY(0) scale(1)';
-    item.style.marginLeft='0px'; item.style.marginRight='0px';
-    item.style.setProperty('--mag',1);
-  });
-}
-dock.addEventListener('mousemove', (e)=> magnify(e.clientX));
-dock.addEventListener('mouseleave', resetDock);
-// touch support
-dock.addEventListener('touchmove', (e)=>{ if(e.touches[0]) magnify(e.touches[0].clientX); }, {passive:true});
-dock.addEventListener('touchend', resetDock);
+    /* ============================================================
+       DESKTOP ICONS: select + double click
+       ============================================================ */
+    document.querySelectorAll('.desk-icon').forEach(el => {
+      el.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.desk-icon').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+      });
+      el.addEventListener('dblclick', () => { openApp('finder'); });
+    });
 
-dockItems.forEach(item=>{
-  item.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    playBlip(700,0.04,0.03);
-    item.classList.remove('bounce'); void item.offsetWidth; item.classList.add('bounce');
-    setTimeout(()=>item.classList.remove('bounce'), 500);
-    const open = item.dataset.open;
-    if(open) openApp(open);
-  });
-});
+    /* ============================================================
+       DOCK: progressive magnification + click open + bounce
+       ============================================================ */
+    const dock = document.getElementById('dock');
+    const dockItems = Array.from(dock.querySelectorAll('.dock-item'));
+    function dockRange() { return window.innerWidth < 700 ? 70 : 110; }
+    function maxScale() { return window.innerWidth < 700 ? 1.35 : 1.7; }
 
-/* ============================================================
-   WINDOW MANAGEMENT (multi-window)
-   ============================================================ */
-const windowsRoot = document.getElementById('windows-root');
-let zTop = 500;
-const openWindows = {}; // id -> element
+    function magnify(mouseX) {
+      const RANGE = dockRange(), MAX_SCALE = maxScale();
+      dockItems.forEach(item => {
+        const rect = item.getBoundingClientRect();
+        const center = rect.left + rect.width / 2;
+        const dist = Math.abs(mouseX - center);
+        let scale = 1;
+        if (dist < RANGE) scale = 1 + (MAX_SCALE - 1) * (1 - dist / RANGE);
+        item.style.setProperty('--mag', scale.toFixed(3));
+        if (!item.classList.contains('bounce')) item.style.transform = `translateY(${(scale - 1) * -18}px) scale(${scale})`;
+        const m = dist < RANGE ? (scale - 1) * 6 : 0;
+        item.style.marginLeft = m + 'px'; item.style.marginRight = m + 'px';
+      });
+    }
+    function resetDock() {
+      dockItems.forEach(item => {
+        item.style.transform = 'translateY(0) scale(1)';
+        item.style.marginLeft = '0px'; item.style.marginRight = '0px';
+        item.style.setProperty('--mag', 1);
+      });
+    }
+    dock.addEventListener('mousemove', (e) => magnify(e.clientX));
+    dock.addEventListener('mouseleave', resetDock);
+    // touch support
+    dock.addEventListener('touchmove', (e) => { if (e.touches[0]) magnify(e.touches[0].clientX); }, { passive: true });
+    dock.addEventListener('touchend', resetDock);
 
-const APP_DEFS = {
-  finder: { title:'Bureau', kind:'finder' },
-  safari: { title:'Safari', kind:'plain', content:`<h2 style="margin-bottom:10px;">🧭 Safari</h2><p>Bienvenue dans Safari. Cette fenêtre est une simulation — aucune connexion réseau n'est établie.</p>` },
-  mail: { title:'Mail — Boîte de réception', kind:'plain', content:`<h2 style="margin-bottom:10px;">✉️ Mail</h2><p>Aucun nouveau message. Votre boîte de réception est vide.</p>` },
-  messages: { title:'Messages', kind:'plain', content:`<h2 style="margin-bottom:10px;">💬 Messages</h2><p>Sélectionnez une conversation pour commencer.</p>` },
-  calendar: { title:'Calendrier', kind:'plain', content:`<h2 style="margin-bottom:10px;">📅 Calendrier</h2><p>Mardi 1 décembre — aucun événement prévu aujourd'hui.</p>` },
-  photos: { title:'Photos', kind:'plain', content:`<h2 style="margin-bottom:10px;">🌸 Photos</h2><p>Votre bibliothèque est vide pour cette démo.</p>` },
-  facetime: { title:'FaceTime', kind:'plain', content:`<h2 style="margin-bottom:10px;">📹 FaceTime</h2><p>Entrez un nom, un numéro de téléphone ou une adresse e-mail pour démarrer un appel.</p>` },
-  contacts: { title:'Contacts', kind:'plain', content:`<h2 style="margin-bottom:10px;">👤 Contacts</h2><p>Aucun contact sélectionné.</p>` },
-  wallet: { title:'Wallet', kind:'plain', content:`<h2 style="margin-bottom:10px;">💳 Wallet</h2><p>Aucune carte enregistrée.</p>` },
-  lists: { title:'Listes', kind:'plain', content:`<h2 style="margin-bottom:10px;">📋 Listes</h2><p>Créez votre première liste.</p>` },
-  stickies: { title:'Stickies', kind:'plain', content:`<h2 style="margin-bottom:10px;">📝 Note</h2><p>Ceci est une note autocollante d'exemple. Écrivez ce que vous voulez ici !</p>` },
-  findmy: { title:'Find My', kind:'plain', content:`<h2 style="margin-bottom:10px;">🧭 Find My</h2><p>Localisation de vos appareils…</p>` },
-  appletv: { title:'Apple TV', kind:'plain', content:`<h2 style="margin-bottom:10px;">📺 Apple TV</h2><p>Découvrez les dernières séries et films.</p>` },
-  music: { title:'Musique', kind:'plain', content:`<h2 style="margin-bottom:10px;">🎵 Musique</h2><p>Aucune lecture en cours.</p>` },
-  podcasts: { title:'Podcasts', kind:'plain', content:`<h2 style="margin-bottom:10px;">🎙️ Podcasts</h2><p>Découvrez de nouveaux podcasts.</p>` },
-  appstore: { title:'App Store', kind:'plain', content:`<h2 style="margin-bottom:10px;">🅰️ App Store</h2><p>Découvrez, achetez et téléchargez des apps.</p>` },
-  settings: { title:'Préférences Système', kind:'plain', content:`<h2 style="margin-bottom:10px;">⚙️ Préférences Système</h2><p>Général, Bureau et économiseur d'écran, Dock et barre des menus…</p>` },
-  downloads: { title:'Téléchargements', kind:'plain', content:`<h2 style="margin-bottom:10px;">⬇️ Téléchargements</h2><p>Aucun fichier téléchargé récemment.</p>` },
-  trash: { title:'Corbeille', kind:'plain', content:`<h2 style="margin-bottom:10px;">🗑️ Corbeille</h2><p>La corbeille est vide.</p>` },
-  reminders: { title:'Rappels', kind:'plain', content:`<h2 style="margin-bottom:10px;">✔️ Rappels</h2><p>Aucun rappel pour aujourd'hui.</p>` },
-  maps: { title:'Plans', kind:'plain', content:`<h2 style="margin-bottom:10px;">🗺️ Plans</h2><p>Recherchez une adresse pour commencer.</p>` },
-};
+    dockItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playBlip(700, 0.04, 0.03);
+        item.classList.remove('bounce'); void item.offsetWidth; item.classList.add('bounce');
+        setTimeout(() => item.classList.remove('bounce'), 500);
+        const open = item.dataset.open;
+        if (open) openApp(open);
+      });
+    });
 
-let winCounter = 0;
-function createWindowEl(id, def){
-  winCounter++;
-  const w = document.createElement('div');
-  w.className = 'window';
-  w.dataset.appid = id;
-  const offset = (winCounter%6)*24;
-  w.style.top = (80+offset)+'px';
-  w.style.left = (Math.max(40,(window.innerWidth/2-380))+offset)+'px';
+    /* ============================================================
+       WINDOW MANAGEMENT (multi-window)
+       ============================================================ */
+    const windowsRoot = document.getElementById('windows-root');
+    let zTop = 500;
+    const openWindows = {}; // id -> element
 
-  let bodyHTML = '';
-  if(def.kind === 'finder'){
-    bodyHTML = `
+    /* Active-app menu bar */
+    const APP_MENU_NAMES = {
+      finder: 'Finder', safari: 'Safari', mail: 'Mail', messages: 'Messages', calendar: 'Calendrier',
+      photos: 'Photos', facetime: 'FaceTime', contacts: 'Contacts', wallet: 'Wallet', lists: 'Listes',
+      stickies: 'Stickies', findmy: 'Find My', appletv: 'TV', music: 'Musique', podcasts: 'Podcasts',
+      appstore: 'App Store', settings: 'Préférences Système', downloads: 'Finder', trash: 'Finder', reminders: 'Rappels', maps: 'Plans'
+    };
+    const menuFinderEl = document.getElementById('menu-finder');
+    function setActiveAppMenu(appId) {
+      menuFinderEl.textContent = APP_MENU_NAMES[appId] || 'Finder';
+    }
+    function refreshWindowFocus(topWindow) {
+      windowsRoot.querySelectorAll('.window').forEach(w => {
+        if (w === topWindow) w.classList.remove('inactive');
+        else w.classList.add('inactive');
+      });
+      if (topWindow) setActiveAppMenu(topWindow.dataset.appid);
+      else setActiveAppMenu('finder');
+    }
+    function focusWindow(w) {
+      zTop++; w.style.zIndex = zTop;
+      refreshWindowFocus(w);
+    }
+
+    const APP_DEFS = {
+      finder: { title: 'Bureau', kind: 'finder' },
+      safari: { title: 'Safari', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🧭 Safari</h2><p>Bienvenue dans Safari. Cette fenêtre est une simulation — aucune connexion réseau n'est établie.</p>` },
+      mail: { title: 'Mail — Boîte de réception', kind: 'plain', content: `<h2 style="margin-bottom:10px;">✉️ Mail</h2><p>Aucun nouveau message. Votre boîte de réception est vide.</p>` },
+      messages: { title: 'Messages', kind: 'plain', content: `<h2 style="margin-bottom:10px;">💬 Messages</h2><p>Sélectionnez une conversation pour commencer.</p>` },
+      calendar: { title: 'Calendrier', kind: 'plain', content: `<h2 style="margin-bottom:10px;">📅 Calendrier</h2><p>Mardi 1 décembre — aucun événement prévu aujourd'hui.</p>` },
+      photos: { title: 'Photos', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🌸 Photos</h2><p>Votre bibliothèque est vide pour cette démo.</p>` },
+      facetime: { title: 'FaceTime', kind: 'plain', content: `<h2 style="margin-bottom:10px;">📹 FaceTime</h2><p>Entrez un nom, un numéro de téléphone ou une adresse e-mail pour démarrer un appel.</p>` },
+      contacts: { title: 'Contacts', kind: 'plain', content: `<h2 style="margin-bottom:10px;">👤 Contacts</h2><p>Aucun contact sélectionné.</p>` },
+      wallet: { title: 'Wallet', kind: 'plain', content: `<h2 style="margin-bottom:10px;">💳 Wallet</h2><p>Aucune carte enregistrée.</p>` },
+      lists: { title: 'Listes', kind: 'plain', content: `<h2 style="margin-bottom:10px;">📋 Listes</h2><p>Créez votre première liste.</p>` },
+      stickies: { title: 'Stickies', kind: 'plain', content: `<h2 style="margin-bottom:10px;">📝 Note</h2><p>Ceci est une note autocollante d'exemple. Écrivez ce que vous voulez ici !</p>` },
+      findmy: { title: 'Find My', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🧭 Find My</h2><p>Localisation de vos appareils…</p>` },
+      appletv: { title: 'Apple TV', kind: 'plain', content: `<h2 style="margin-bottom:10px;">📺 Apple TV</h2><p>Découvrez les dernières séries et films.</p>` },
+      music: { title: 'Musique', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🎵 Musique</h2><p>Aucune lecture en cours.</p>` },
+      podcasts: { title: 'Podcasts', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🎙️ Podcasts</h2><p>Découvrez de nouveaux podcasts.</p>` },
+      appstore: { title: 'App Store', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🅰️ App Store</h2><p>Découvrez, achetez et téléchargez des apps.</p>` },
+      settings: { title: 'Préférences Système', kind: 'plain', content: `<h2 style="margin-bottom:10px;">⚙️ Préférences Système</h2><p>Général, Bureau et économiseur d'écran, Dock et barre des menus…</p>` },
+      downloads: { title: 'Téléchargements', kind: 'plain', content: `<h2 style="margin-bottom:10px;">⬇️ Téléchargements</h2><p>Aucun fichier téléchargé récemment.</p>` },
+      trash: { title: 'Corbeille', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🗑️ Corbeille</h2><p>La corbeille est vide.</p>` },
+      reminders: { title: 'Rappels', kind: 'plain', content: `<h2 style="margin-bottom:10px;">✔️ Rappels</h2><p>Aucun rappel pour aujourd'hui.</p>` },
+      maps: { title: 'Plans', kind: 'plain', content: `<h2 style="margin-bottom:10px;">🗺️ Plans</h2><p>Recherchez une adresse pour commencer.</p>` },
+    };
+
+    let winCounter = 0;
+    function createWindowEl(id, def) {
+      winCounter++;
+      const w = document.createElement('div');
+      w.className = 'window';
+      w.dataset.appid = id;
+      const offset = (winCounter % 6) * 24;
+      w.style.top = (80 + offset) + 'px';
+      w.style.left = (Math.max(40, (window.innerWidth / 2 - 380)) + offset) + 'px';
+
+      let bodyHTML = '';
+      if (def.kind === 'finder') {
+        bodyHTML = `
       <div class="win-toolbar">
         <span>◀</span><span>▶</span>
         <span style="font-size:13px;font-weight:600;color:#3a3a3c;">Bureau</span>
@@ -878,11 +2219,11 @@ function createWindowEl(id, def){
           <div class="win-file"><div class="fic">🖼</div>Captures</div>
         </div>
       </div>`;
-  } else {
-    bodyHTML = `<div class="win-plain-body">${def.content}</div>`;
-  }
+      } else {
+        bodyHTML = `<div class="win-plain-body">${def.content}</div>`;
+      }
 
-  w.innerHTML = `
+      w.innerHTML = `
     <div class="titlebar">
       <div class="traffic-group">
         <div class="traffic close"><span>✕</span></div>
@@ -895,176 +2236,360 @@ function createWindowEl(id, def){
     <div class="rz rz-e"></div><div class="rz rz-w"></div><div class="rz rz-s"></div><div class="rz rz-n"></div>
     <div class="rz rz-se"></div><div class="rz rz-sw"></div><div class="rz rz-ne"></div><div class="rz rz-nw"></div>
   `;
-  windowsRoot.appendChild(w);
-  wireWindow(w);
-  return w;
-}
-
-function wireWindow(w){
-  const titlebar = w.querySelector('.titlebar');
-  const closeBtn = w.querySelector('.traffic.close');
-  const minBtn = w.querySelector('.traffic.min');
-
-  w.addEventListener('mousedown', ()=>{ zTop++; w.style.zIndex = zTop; });
-
-  closeBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    w.classList.add('closing');
-    setTimeout(()=>{ w.remove(); delete openWindows[w.dataset.appid+'_'+w.dataset.uid]; }, 150);
-  });
-  minBtn.addEventListener('click', (e)=>{
-    e.stopPropagation();
-    w.classList.add('minimized');
-  });
-
-  // drag
-  let dragging=false, offX=0, offY=0;
-  titlebar.addEventListener('mousedown', (e)=>{
-    if(e.target.closest('.traffic-group')) return;
-    dragging = true;
-    const rect = w.getBoundingClientRect();
-    offX = e.clientX-rect.left; offY = e.clientY-rect.top;
-    w.style.left = rect.left+'px'; w.style.top = rect.top+'px';
-  });
-  window.addEventListener('mousemove', (e)=>{
-    if(dragging){
-      w.style.left = (e.clientX-offX)+'px';
-      w.style.top = Math.max(26, e.clientY-offY)+'px';
+      windowsRoot.appendChild(w);
+      wireWindow(w);
+      return w;
     }
-  });
-  window.addEventListener('mouseup', ()=>{ dragging=false; });
 
-  // resize (8 directions)
-  const dirs = ['e','w','s','n','se','sw','ne','nw'];
-  dirs.forEach(dir=>{
-    const handle = w.querySelector('.rz-'+dir);
-    let resizing=false, startX=0, startY=0, startW=0, startH=0, startL=0, startT=0;
-    handle.addEventListener('mousedown', (e)=>{
-      e.stopPropagation(); resizing = true;
-      const rect = w.getBoundingClientRect();
-      startX=e.clientX; startY=e.clientY; startW=rect.width; startH=rect.height; startL=rect.left; startT=rect.top;
-      function onMove(ev){
-        if(!resizing) return;
-        const dx = ev.clientX-startX, dy = ev.clientY-startY;
-        if(dir.includes('e')) w.style.width = Math.max(360, startW+dx)+'px';
-        if(dir.includes('s')) w.style.height = Math.max(220, startH+dy)+'px';
-        if(dir.includes('w')){ const nw = Math.max(360, startW-dx); w.style.width = nw+'px'; w.style.left = (startL+startW-nw)+'px'; }
-        if(dir.includes('n')){ const nh = Math.max(220, startH-dy); w.style.height = nh+'px'; w.style.top = (startT+startH-nh)+'px'; }
-      }
-      function onUp(){ resizing=false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); }
-      window.addEventListener('mousemove', onMove);
-      window.addEventListener('mouseup', onUp);
-    });
-  });
-}
+    function wireWindow(w) {
+      const titlebar = w.querySelector('.titlebar');
+      const closeBtn = w.querySelector('.traffic.close');
+      const minBtn = w.querySelector('.traffic.min');
 
-function openApp(id){
-  hideContextMenus();
-  if(id === 'launchpad'){ openLaunchpad(); return; }
-  if(id === 'mission'){ openMissionControl(); return; }
-  const def = APP_DEFS[id] || APP_DEFS.finder;
-  // if already open, bring to front & unminimize instead of duplicating (keeps demo tidy)
-  const existing = windowsRoot.querySelector(`.window[data-appid="${id}"]`);
-  if(existing){
-    existing.classList.remove('minimized');
-    zTop++; existing.style.zIndex = zTop;
-    existing.classList.remove('show'); void existing.offsetWidth; existing.classList.add('show');
-    return;
-  }
-  const w = createWindowEl(id, def);
-  w.dataset.uid = winCounter;
-  zTop++; w.style.zIndex = zTop;
-  requestAnimationFrame(()=> w.classList.add('show'));
-  playBlip(500,0.05,0.03);
-}
+      w.addEventListener('mousedown', () => { focusWindow(w); });
 
-/* ============================================================
-   LAUNCHPAD (fullscreen)
-   ============================================================ */
-const lpOverlay = document.getElementById('launchpad-overlay');
-const lpGrid = document.getElementById('lp-grid');
-const LAUNCHPAD_APPS = ['finder','safari','mail','messages','calendar','photos','facetime','contacts','wallet','lists','stickies','findmy','appletv','music','podcasts','appstore','settings','downloads','trash','reminders','maps'];
-function buildLaunchpad(){
-  lpGrid.innerHTML='';
-  LAUNCHPAD_APPS.forEach(id=>{
-    const def = APP_DEFS[id];
-    const bgClass = document.querySelector(`.dock-item[data-open="${id}"]`)?.className.split(' ').find(c=>c.endsWith('-bg')) || '';
-    const div = document.createElement('div');
-    div.className = 'lp-app';
-    div.innerHTML = `<div class="lp-ic ${bgClass}">${iconSVG(id)}</div><div class="lp-label">${def ? def.title.split(' ')[0].split('—')[0] : id}</div>`;
-    div.addEventListener('click', (e)=>{ e.stopPropagation(); closeLaunchpad(); openApp(id); });
-    lpGrid.appendChild(div);
-  });
-}
-function openLaunchpad(){
-  buildLaunchpad();
-  document.body.classList.add('blurred');
-  lpOverlay.classList.add('show');
-}
-function closeLaunchpad(){
-  lpOverlay.classList.remove('show');
-  document.body.classList.remove('blurred');
-}
-lpOverlay.addEventListener('click', (e)=>{ if(e.target===lpOverlay) closeLaunchpad(); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeLaunchpad(); });
-
-/* ============================================================
-   MISSION CONTROL
-   ============================================================ */
-const missionOverlay = document.getElementById('mission-overlay');
-function openMissionControl(){
-  const wins = Array.from(windowsRoot.querySelectorAll('.window.show:not(.minimized)'));
-  missionOverlay.innerHTML='';
-  if(wins.length===0){
-    missionOverlay.innerHTML = '<div class="mission-empty">Aucune fenêtre ouverte</div>';
-  } else {
-    wins.forEach(w=>{
-      const title = w.querySelector('.win-title').textContent;
-      const thumb = document.createElement('div');
-      thumb.className='mission-thumb';
-      thumb.innerHTML = `<div class="mt-bar"><span style="background:#ff5f57;"></span><span style="background:#ffbd2e;"></span><span style="background:#28c940;"></span></div><div class="mt-body">${title}</div>`;
-      thumb.addEventListener('click', ()=>{
-        closeMissionControl();
-        zTop++; w.style.zIndex = zTop;
-        w.classList.remove('minimized');
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        w.classList.add('closing');
+        setTimeout(() => { w.remove(); delete openWindows[w.dataset.appid + '_' + w.dataset.uid]; }, 150);
       });
-      missionOverlay.appendChild(thumb);
+      minBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        w.classList.add('minimized');
+      });
+
+      // drag with edge snap (Split View style)
+      let dragging = false, offX = 0, offY = 0;
+      const snapLeft = document.getElementById('snap-left');
+      const snapRight = document.getElementById('snap-right');
+      let pendingSnap = null;
+      const SNAP_MARGIN = 24;
+
+      titlebar.addEventListener('mousedown', (e) => {
+        if (e.target.closest('.traffic-group')) return;
+        dragging = true;
+        const rect = w.getBoundingClientRect();
+        offX = e.clientX - rect.left; offY = e.clientY - rect.top;
+        w.style.left = rect.left + 'px'; w.style.top = rect.top + 'px';
+        w.style.width = rect.width + 'px'; w.style.height = rect.height + 'px';
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (dragging) {
+          w.style.left = (e.clientX - offX) + 'px';
+          w.style.top = Math.max(26, e.clientY - offY) + 'px';
+          // detect proximity to left/right edge for split-view snap
+          if (e.clientX < SNAP_MARGIN) {
+            pendingSnap = 'left';
+            snapLeft.classList.add('show'); snapRight.classList.remove('show');
+          } else if (e.clientX > window.innerWidth - SNAP_MARGIN) {
+            pendingSnap = 'right';
+            snapRight.classList.add('show'); snapLeft.classList.remove('show');
+          } else {
+            pendingSnap = null;
+            snapLeft.classList.remove('show'); snapRight.classList.remove('show');
+          }
+        }
+      });
+      window.addEventListener('mouseup', () => {
+        if (dragging && pendingSnap) {
+          const menubarH = 26;
+          w.style.top = menubarH + 'px';
+          w.style.height = (window.innerHeight - menubarH) + 'px';
+          if (pendingSnap === 'left') { w.style.left = '0px'; w.style.width = (window.innerWidth / 2) + 'px'; }
+          else { w.style.left = (window.innerWidth / 2) + 'px'; w.style.width = (window.innerWidth / 2) + 'px'; }
+        }
+        dragging = false; pendingSnap = null;
+        snapLeft.classList.remove('show'); snapRight.classList.remove('show');
+      });
+
+      // resize (8 directions)
+      const dirs = ['e', 'w', 's', 'n', 'se', 'sw', 'ne', 'nw'];
+      dirs.forEach(dir => {
+        const handle = w.querySelector('.rz-' + dir);
+        let resizing = false, startX = 0, startY = 0, startW = 0, startH = 0, startL = 0, startT = 0;
+        handle.addEventListener('mousedown', (e) => {
+          e.stopPropagation(); resizing = true;
+          const rect = w.getBoundingClientRect();
+          startX = e.clientX; startY = e.clientY; startW = rect.width; startH = rect.height; startL = rect.left; startT = rect.top;
+          function onMove(ev) {
+            if (!resizing) return;
+            const dx = ev.clientX - startX, dy = ev.clientY - startY;
+            if (dir.includes('e')) w.style.width = Math.max(360, startW + dx) + 'px';
+            if (dir.includes('s')) w.style.height = Math.max(220, startH + dy) + 'px';
+            if (dir.includes('w')) { const nw = Math.max(360, startW - dx); w.style.width = nw + 'px'; w.style.left = (startL + startW - nw) + 'px'; }
+            if (dir.includes('n')) { const nh = Math.max(220, startH - dy); w.style.height = nh + 'px'; w.style.top = (startT + startH - nh) + 'px'; }
+          }
+          function onUp() { resizing = false; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); }
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        });
+      });
+    }
+
+    function openApp(id) {
+      hideContextMenus();
+      if (id === 'launchpad') { openLaunchpad(); return; }
+      if (id === 'mission') { openMissionControl(); return; }
+      const def = APP_DEFS[id] || APP_DEFS.finder;
+      // if already open, bring to front & unminimize instead of duplicating (keeps demo tidy)
+      const existing = windowsRoot.querySelector(`.window[data-appid="${id}"]`);
+      if (existing) {
+        existing.classList.remove('minimized');
+        existing.classList.remove('show'); void existing.offsetWidth; existing.classList.add('show');
+        focusWindow(existing);
+        return;
+      }
+      const w = createWindowEl(id, def);
+      w.dataset.uid = winCounter;
+      requestAnimationFrame(() => w.classList.add('show'));
+      focusWindow(w);
+      playBlip(500, 0.05, 0.03);
+    }
+
+    /* ============================================================
+       LAUNCHPAD (fullscreen)
+       ============================================================ */
+    const lpOverlay = document.getElementById('launchpad-overlay');
+    const lpGrid = document.getElementById('lp-grid');
+    const LAUNCHPAD_APPS = ['finder', 'safari', 'mail', 'messages', 'calendar', 'photos', 'facetime', 'contacts', 'wallet', 'lists', 'stickies', 'findmy', 'appletv', 'music', 'podcasts', 'appstore', 'settings', 'downloads', 'trash', 'reminders', 'maps'];
+    function buildLaunchpad() {
+      lpGrid.innerHTML = '';
+      LAUNCHPAD_APPS.forEach(id => {
+        const def = APP_DEFS[id];
+        const bgClass = document.querySelector(`.dock-item[data-open="${id}"]`)?.className.split(' ').find(c => c.endsWith('-bg')) || '';
+        const div = document.createElement('div');
+        div.className = 'lp-app';
+        div.innerHTML = `<div class="lp-ic ${bgClass}">${iconSVG(id)}</div><div class="lp-label">${def ? def.title.split(' ')[0].split('—')[0] : id}</div>`;
+        div.addEventListener('click', (e) => { e.stopPropagation(); closeLaunchpad(); openApp(id); });
+        lpGrid.appendChild(div);
+      });
+    }
+    function openLaunchpad() {
+      buildLaunchpad();
+      document.body.classList.add('blurred');
+      lpOverlay.classList.add('show');
+    }
+    function closeLaunchpad() {
+      lpOverlay.classList.remove('show');
+      document.body.classList.remove('blurred');
+    }
+    lpOverlay.addEventListener('click', (e) => { if (e.target === lpOverlay) closeLaunchpad(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLaunchpad(); });
+
+    /* ============================================================
+       MISSION CONTROL
+       ============================================================ */
+    const missionOverlay = document.getElementById('mission-overlay');
+    function openMissionControl() {
+      const wins = Array.from(windowsRoot.querySelectorAll('.window.show:not(.minimized)'));
+      missionOverlay.innerHTML = '';
+      if (wins.length === 0) {
+        missionOverlay.innerHTML = '<div class="mission-empty">Aucune fenêtre ouverte</div>';
+      } else {
+        wins.forEach(w => {
+          const title = w.querySelector('.win-title').textContent;
+          const thumb = document.createElement('div');
+          thumb.className = 'mission-thumb';
+          thumb.innerHTML = `<div class="mt-bar"><span style="background:#ff5f57;"></span><span style="background:#ffbd2e;"></span><span style="background:#28c940;"></span></div><div class="mt-body">${title}</div>`;
+          thumb.addEventListener('click', () => {
+            closeMissionControl();
+            zTop++; w.style.zIndex = zTop;
+            w.classList.remove('minimized');
+          });
+          missionOverlay.appendChild(thumb);
+        });
+      }
+      missionOverlay.classList.add('show');
+    }
+    function closeMissionControl() { missionOverlay.classList.remove('show'); }
+    missionOverlay.addEventListener('click', (e) => { if (e.target === missionOverlay) closeMissionControl(); });
+
+    /* ============================================================
+       SCREENSAVER (after inactivity)
+       ============================================================ */
+    const screensaver = document.getElementById('screensaver');
+    let inactivityTimer = null;
+    const INACTIVITY_MS = 45000; // 45s for demo purposes
+    function resetInactivity() {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => { screensaver.classList.add('show'); }, INACTIVITY_MS);
+    }
+    ['mousemove', 'mousedown', 'keydown', 'touchstart', 'wheel'].forEach(evt => {
+      document.addEventListener(evt, resetInactivity, { passive: true });
     });
-  }
-  missionOverlay.classList.add('show');
-}
-function closeMissionControl(){ missionOverlay.classList.remove('show'); }
-missionOverlay.addEventListener('click', (e)=>{ if(e.target===missionOverlay) closeMissionControl(); });
+    screensaver.addEventListener('click', () => { screensaver.classList.remove('show'); resetInactivity(); });
+    screensaver.addEventListener('touchstart', () => { screensaver.classList.remove('show'); resetInactivity(); });
+    resetInactivity();
 
-/* ============================================================
-   SCREENSAVER (after inactivity)
-   ============================================================ */
-const screensaver = document.getElementById('screensaver');
-let inactivityTimer = null;
-const INACTIVITY_MS = 45000; // 45s for demo purposes
-function resetInactivity(){
-  clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(()=>{ screensaver.classList.add('show'); }, INACTIVITY_MS);
-}
-['mousemove','mousedown','keydown','touchstart','wheel'].forEach(evt=>{
-  document.addEventListener(evt, resetInactivity, {passive:true});
-});
-screensaver.addEventListener('click', ()=>{ screensaver.classList.remove('show'); resetInactivity(); });
-screensaver.addEventListener('touchstart', ()=>{ screensaver.classList.remove('show'); resetInactivity(); });
-resetInactivity();
+    /* ============================================================
+       RESPONSIVE DOCK SIZE
+       ============================================================ */
+    function adjustDockSize() {
+      const w = window.innerWidth;
+      let size = 54;
+      if (w < 600) size = 38;
+      else if (w < 900) size = 46;
+      document.documentElement.style.setProperty('--dock-size', size + 'px');
+    }
+    adjustDockSize();
+    window.addEventListener('resize', adjustDockSize);
 
-/* ============================================================
-   RESPONSIVE DOCK SIZE
-   ============================================================ */
-function adjustDockSize(){
-  const w = window.innerWidth;
-  let size = 54;
-  if(w < 600) size = 38;
-  else if(w < 900) size = 46;
-  document.documentElement.style.setProperty('--dock-size', size+'px');
-}
-adjustDockSize();
-window.addEventListener('resize', adjustDockSize);
-</script>
+    /* ============================================================
+       WIDGETS: fill live date
+       ============================================================ */
+    (function fillWidgetDate() {
+      const now = new Date();
+      const dEl = document.getElementById('widget-day');
+      const dtEl = document.getElementById('widget-date');
+      const mEl = document.getElementById('widget-month');
+      if (dEl) dEl.textContent = DAYS_LONG_FR[now.getDay()];
+      if (dtEl) dtEl.textContent = now.getDate();
+      if (mEl) mEl.textContent = MONTHS_LONG_FR[now.getMonth()];
+    })();
+
+    /* ============================================================
+       NOTIFICATION CENTER (drag from right edge / click)
+       ============================================================ */
+    const notifEdge = document.getElementById('notif-edge');
+    const notifCenter = document.getElementById('notif-center');
+    const btnNotif = document.getElementById('btn-notif');
+    function toggleNotifCenter(force) {
+      const show = force !== undefined ? force : !notifCenter.classList.contains('show');
+      notifCenter.classList.toggle('show', show);
+    }
+    notifEdge.addEventListener('click', (e) => { e.stopPropagation(); toggleNotifCenter(); });
+    btnNotif.addEventListener('click', (e) => { e.stopPropagation(); toggleNotifCenter(); });
+    notifCenter.addEventListener('click', e => e.stopPropagation());
+    document.addEventListener('click', () => { toggleNotifCenter(false); });
+
+    /* ============================================================
+       CMD+TAB APP SWITCHER
+       ============================================================ */
+    const appSwitcher = document.getElementById('app-switcher');
+    let switcherIndex = 0;
+    let switcherApps = [];
+    function buildSwitcher() {
+      switcherApps = Array.from(windowsRoot.querySelectorAll('.window')).map(w => w.dataset.appid);
+      if (switcherApps.length === 0) { switcherApps = ['finder']; }
+      appSwitcher.innerHTML = '';
+      switcherApps.forEach((id, i) => {
+        const bgClass = document.querySelector(`.dock-item[data-open="${id}"]`)?.className.split(' ').find(c => c.endsWith('-bg')) || '';
+        const div = document.createElement('div');
+        div.className = 'as-item' + (i === switcherIndex ? ' active' : '');
+        div.innerHTML = `<div class="as-ic ${bgClass}">${iconSVG(id)}</div><div class="as-label">${APP_MENU_NAMES[id] || id}</div>`;
+        appSwitcher.appendChild(div);
+      });
+    }
+    function showSwitcher() { buildSwitcher(); appSwitcher.classList.add('show'); }
+    function hideSwitcherAndActivate() {
+      appSwitcher.classList.remove('show');
+      const id = switcherApps[switcherIndex];
+      if (id) openApp(id);
+      switcherIndex = 0;
+    }
+    let switcherActive = false;
+
+    /* ============================================================
+       KEYBOARD SHORTCUTS (⌘Tab switch apps, ⌘Q quit, ⌘W close)
+       ============================================================ */
+    document.addEventListener('keydown', (e) => {
+      const cmd = e.metaKey || e.ctrlKey; // ctrl as fallback on non-mac
+      if (cmd && e.key.toLowerCase() === 'tab') {
+        e.preventDefault();
+        if (!switcherActive) { switcherActive = true; switcherIndex = 0; showSwitcher(); }
+        else { switcherIndex = (switcherIndex + (e.shiftKey ? -1 : 1) + switcherApps.length) % switcherApps.length; buildSwitcher(); }
+      }
+      if (cmd && e.key.toLowerCase() === 'w') {
+        e.preventDefault();
+        const top = Array.from(windowsRoot.querySelectorAll('.window')).sort((a, b) => (parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)))[0];
+        if (top) { const closeBtn = top.querySelector('.traffic.close'); if (closeBtn) closeBtn.click(); }
+      }
+      if (cmd && e.key.toLowerCase() === 'q') {
+        e.preventDefault();
+        const top = Array.from(windowsRoot.querySelectorAll('.window')).sort((a, b) => (parseInt(b.style.zIndex || 0) - parseInt(a.style.zIndex || 0)))[0];
+        if (top) { const closeBtn = top.querySelector('.traffic.close'); if (closeBtn) closeBtn.click(); }
+      }
+    });
+    document.addEventListener('keyup', (e) => {
+      if ((e.key === 'Meta' || e.key === 'Control') && switcherActive) {
+        switcherActive = false;
+        hideSwitcherAndActivate();
+      }
+    });
+
+    /* ============================================================
+       DOCK ICON DRAG-OUT REMOVAL (drag away = remove, like real macOS)
+       ============================================================ */
+    dockItems.forEach(item => {
+      let dragStartY = null, isDraggingOut = false;
+      item.addEventListener('mousedown', (e) => {
+        dragStartY = e.clientY;
+        isDraggingOut = false;
+        function onMove(ev) {
+          if (Math.abs(ev.clientY - dragStartY) > 70) {
+            isDraggingOut = true;
+            item.style.opacity = '0.35';
+            item.style.transform += ' scale(0.8)';
+          }
+        }
+        function onUp(ev) {
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          if (isDraggingOut) {
+            item.style.transition = 'opacity .2s ease, transform .2s ease';
+            item.style.opacity = '0';
+            setTimeout(() => { item.remove(); }, 200);
+          } else {
+            item.style.opacity = '1';
+          }
+        }
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
+    });
+
+    /* ============================================================
+       SPOTLIGHT: simple calculator support ("2+2", "10*4", etc.)
+       ============================================================ */
+    const origRenderSpotlight = renderSpotlight;
+    renderSpotlight = function (query) {
+      const q = query.trim();
+      if (/^[0-9\s+\-*/().]+$/.test(q) && /[0-9]/.test(q) && /[+\-*/]/.test(q)) {
+        let result;
+        try { result = Function('"use strict";return (' + q + ')')(); } catch (e) { result = null; }
+        if (result !== null && isFinite(result)) {
+          spotResults.innerHTML = `<div class="res active"><span class="r-ic">🧮</span><span>${q} = <b>${result}</b></span></div>`;
+          return;
+        }
+      }
+      origRenderSpotlight(query);
+    };
+
+    /* ============================================================
+       SHUTDOWN / RESTART / SLEEP (Apple menu)
+       ============================================================ */
+    const shutdownOverlay = document.getElementById('shutdown-overlay');
+    function playShutdownSequence(restart) {
+      closeAllMenus();
+      shutdownOverlay.classList.add('spin');
+      setTimeout(() => {
+        shutdownOverlay.classList.add('show');
+        setTimeout(() => {
+          if (restart) {
+            shutdownOverlay.classList.remove('spin');
+            setTimeout(() => shutdownOverlay.classList.remove('show'), 1200);
+          }
+          // if shutdown (not restart), leave screen black
+        }, 900);
+      }, 100);
+    }
+    const menuShutdown = document.getElementById('menu-shutdown');
+    const menuRestart = document.getElementById('menu-restart');
+    const menuSleep = document.getElementById('menu-sleep');
+    if (menuShutdown) menuShutdown.addEventListener('click', () => playShutdownSequence(false));
+    if (menuRestart) menuRestart.addEventListener('click', () => playShutdownSequence(true));
+    if (menuSleep) menuSleep.addEventListener('click', () => { closeAllMenus(); screensaver.classList.add('show'); });
+  </script>
 </body>
+
 </html>
